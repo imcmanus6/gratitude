@@ -20,7 +20,7 @@ Both apps use separate Google Cloud projects under the owner's Gmail account. Br
 - Supabase Site URL: `https://meditate.iskind.net`
 - Existing live redirect wildcard retained: `https://meditate.iskind.net/**`
 - Local redirect added: `http://localhost:3006/auth/callback`
-- Local web app includes buttons and callback page. These Meditate UI changes have not yet been deployed.
+- Web app includes Google sign-in and the callback page, now deployed to Railway. Apple is commented out in both apps pending developer enrolment.
 
 ## Before public release
 
