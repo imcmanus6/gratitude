@@ -270,10 +270,13 @@ test("dictation stays available and voice-note uploads are disabled", async ({
 test("social sign-in unavailable state is honest and email remains usable", async ({
   page,
 }) => {
+  await page.route("**/api/auth/providers", route => route.fulfill({
+    json: { apple: false, google: false, linked: [] },
+  }));
   await page.goto("http://localhost:3005");
   await expect(
     page.getByRole("button", { name: "Continue with Apple" }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Continue with Google" }),
   ).toBeDisabled();
@@ -288,7 +291,7 @@ test("social sign-in unavailable state is honest and email remains usable", asyn
     fullPage: true,
   });
   await expect(page.locator(".social-button").first()).toHaveText(
-    "Continue with Apple",
+    "Continue with Google",
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({
