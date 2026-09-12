@@ -1,0 +1,13 @@
+require('@next/env').loadEnvConfig(process.cwd());
+const fs=require('fs'),{randomBytes}=require('crypto'),{Client}=require('pg');
+const c=new Client({connectionString:(process.env.SUPABASE_DATABASE_ADMIN_URL || process.env.SUPABASE_DATABASE_URL),ssl:{rejectUnauthorized:true,ca:fs.readFileSync('config/supabase-ca.crt','utf8')}});
+(async()=>{try{await c.connect();const password=randomBytes(32).toString('hex');
+ if((await c.query("select 1 from pg_roles where rolname='gratitude_app'")).rowCount)throw new Error('Application role already exists; refusing to change credentials');
+ await c.query('BEGIN');await c.query(`CREATE ROLE gratitude_app LOGIN PASSWORD '${password}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS`);
+ await c.query('GRANT USAGE ON SCHEMA gratitude TO gratitude_app; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA gratitude TO gratitude_app;');
+ const tables=(await c.query("SELECT tablename FROM pg_tables WHERE schemaname='gratitude'")).rows;
+ for(const {tablename} of tables)await c.query(`CREATE POLICY server_access ON gratitude."${tablename}" TO gratitude_app USING (true) WITH CHECK (true)`);
+ await c.query('COMMIT');
+ const u=new URL((process.env.SUPABASE_DATABASE_ADMIN_URL || process.env.SUPABASE_DATABASE_URL));u.username='gratitude_app.uwpxtkvjolxupkccfoif';u.password=password;
+ let env=fs.readFileSync('.env.local','utf8');env=env.replace(/^SUPABASE_DATABASE_URL=.*$/m,'SUPABASE_DATABASE_ADMIN_URL='+(process.env.SUPABASE_DATABASE_ADMIN_URL || process.env.SUPABASE_DATABASE_URL));env+='\nSUPABASE_DATABASE_URL='+u.href+'\n';fs.writeFileSync('.env.local',env,{mode:0o600});console.log('Restricted application database role configured.');
+}catch(e){await c.query('ROLLBACK').catch(()=>{});console.error(e.message);process.exitCode=1;}finally{await c.end();}})();

@@ -1,0 +1,72 @@
+export type User = { id: string; name: string; email: string };
+export type Circle = {
+  id: string;
+  name: string;
+  kind: string;
+  description: string;
+  owner: string;
+  invite: string;
+  members: number;
+  role: string;
+  muted: number;
+  prompt: string;
+  cadence: string;
+  day: string;
+  time: string;
+  timezone: string;
+  count: number;
+};
+export type Post = {
+  recipient: string | null;
+  recipient_name: string | null;
+  circle_ids: string[];
+  id: string;
+  circle_id: string | null;
+  author: string;
+  name: string;
+  body: string;
+  image: string | null;
+  background: string;
+  image_generated: number;
+  audio: string | null;
+  created: string;
+  visibility: string;
+  session_id: string | null;
+  hearts: number;
+  thanks: number;
+  hearted: number;
+  thanked: number;
+  comments: {
+    id: string;
+    author: string;
+    name: string;
+    body: string;
+    created: string;
+  }[];
+};
+export type Session = {
+  id: string;
+  circle_id: string;
+  host: string;
+  prompt: string;
+  created: string;
+  ended: string | null;
+  reflection: string;
+  entries: number;
+};
+export type AppState = {
+  complimentary_paid_access: boolean;
+  onboarding_complete: boolean;
+  invitations: {
+    id: string;
+    circle_id: string;
+    circle_name: string;
+    sender_name: string;
+  }[];
+  feed_since: string;
+  user: User;
+  circles: Circle[];
+  posts: Post[];
+  sessions: Session[];
+  demo: boolean;
+};
