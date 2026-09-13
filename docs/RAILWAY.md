@@ -7,7 +7,9 @@ Environment: production
 Preview: https://web-production-8ef248.up.railway.app
 Intended domain: https://gratitude.iskind.net
 
-Deploy from this directory with `railway up --service web --detach`. The Docker image builds from the lockfile with Node 22, then runs the Next server and reminder worker. PORT is provided by Railway; the local default is 3005. The healthcheck is `/`. Supabase stores persistent application data; no local volume is required. `.railwayignore` and `.dockerignore` exclude local secrets, SQLite data, test artifacts and local dependencies.
+The production `web` service is connected to `imcmanus6/gratitude` on GitHub and automatically deploys every push to `main`, including pull request merges. Railway builds the repository using the existing Dockerfile and checks `/` before switching traffic.
+
+For a manual deployment, run `railway up --service web --detach` from this directory. The Docker image builds from the lockfile with Node 22, then runs the Next server and reminder worker. PORT is provided by Railway; the local default is 3005. The healthcheck is `/`. Supabase stores persistent application data; no local volume is required. `.railwayignore` and `.dockerignore` exclude local secrets, SQLite data, test artifacts and local dependencies.
 
 Runtime variables were configured from the local environment: restricted SUPABASE_DATABASE_URL, OPENAI_API_KEY and VAPID keys/subject. The administrator database credential is deliberately not deployed. Complimentary paid access remains on. AUTH_ORIGIN uses https://gratitude.iskind.net.
 
