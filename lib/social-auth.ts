@@ -100,8 +100,20 @@ export function safeReturnPath(value: unknown) {
   // Only preserve the existing invitation deep-link; arbitrary redirects are never accepted.
   try {
     const url = new URL(value, "https://gratitude.invalid");
-    if (url.origin !== "https://gratitude.invalid" || url.pathname !== "/")
-      return "/";
+    if (url.origin !== "https://gratitude.invalid") return "/";
+    // Partner connect (/connect) keeps its hand-off parameters; redirect_uri is
+    // re-validated against the allow-list by /api/v1/connect/authorize.
+    if (url.pathname === "/connect") {
+      const keep = new URLSearchParams();
+      for (const key of ["client", "redirect_uri", "state"]) {
+        const v = url.searchParams.get(key);
+        if (v && v.length <= 4000) keep.set(key, v);
+      }
+      return keep.has("client") && keep.has("redirect_uri")
+        ? `/connect?${keep}`
+        : "/";
+    }
+    if (url.pathname !== "/") return "/";
     const invite = url.searchParams.get("invite");
     return invite && /^[a-zA-Z0-9-]{1,100}$/.test(invite)
       ? `/?invite=${encodeURIComponent(invite)}`
