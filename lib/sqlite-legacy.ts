@@ -43,7 +43,9 @@ CREATE TABLE IF NOT EXISTS blocks (user_id TEXT REFERENCES users(id), blocked_id
       "ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0",
     );
   db.exec(`CREATE TABLE IF NOT EXISTS email_tokens (hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, purpose TEXT NOT NULL, expires INTEGER NOT NULL);
-    CREATE TABLE IF NOT EXISTS email_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires INTEGER NOT NULL);`);
+    CREATE TABLE IF NOT EXISTS email_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires INTEGER NOT NULL);
+    CREATE TABLE IF NOT EXISTS api_keys (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, name TEXT, key_prefix TEXT NOT NULL, key_hash TEXT UNIQUE NOT NULL, created TEXT NOT NULL, last_used TEXT, revoked TEXT);
+    CREATE TABLE IF NOT EXISTS connect_codes (code_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, client TEXT NOT NULL, redirect_uri TEXT NOT NULL, expires INTEGER NOT NULL);`);
   if (
     !(db.prepare("PRAGMA table_info(users)").all() as { name: string }[]).some(
       (c) => c.name === "onboarding_complete",
