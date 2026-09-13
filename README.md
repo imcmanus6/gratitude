@@ -102,3 +102,9 @@ Deletion is transactional: own posts/media and social identities/sessions are re
 All existing and new accounts receive ad-free access by default, without billing or a subscription. Settings explains the complimentary access. Sponsor card designs, copy and links remain intact; set `GRATITUDE_COMPLIMENTARY_PAID_ACCESS=false` and restart to show them again.
 
 AI image creation is already enabled for every registered account when `OPENAI_API_KEY` is configured. Existing limits remain 5 requests per account and 50 across the app per rolling 24 hours. Demo visitors see the ad-free preview but must create an account to generate images. The private `gratitude.image_generations` table records requests and completion status for evaluating uptake; `uploads.generated` identifies generated assets used by posts. No additional tracking service is introduced.
+
+## Partner connect (Briefly)
+
+`/connect?client=briefly&redirect_uri=…&state=…` is a compact sign-up/sign-in page meant to be embedded in a partner's iframe. On success it `POST`s `/api/v1/connect/authorize`, which mints a partner API key (`api_keys` table), wraps it in a 5-minute AES-256-GCM code and redirects to `redirect_uri?code=…&state=…`. The partner exchanges the code server-to-server at `POST /api/v1/connect/exchange { code, client }` → `{ api_key, account }`, then calls `GET|POST /api/v1/entries` with an `x-api-key` header.
+
+Env: `CONNECT_CODE_SECRET` (code encryption; falls back to `SUPABASE_DATABASE_URL`), `CONNECT_REDIRECT_ORIGINS` (comma-separated allowed redirect origins; defaults to Briefly's). Apply `supabase/migrations/202609130001_api_keys.sql`.
