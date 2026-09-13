@@ -22,6 +22,10 @@ function Connect() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [checking, setChecking] = useState(true);
+  const [google, setGoogle] = useState(false);
+  const [framed, setFramed] = useState(false);
+  const [googleTab, setGoogleTab] = useState(false);
+  const returnPath = `/connect?${new URLSearchParams({ client, redirect_uri: redirectUri, ...(state ? { state } : {}) })}`;
 
   const authorize = async (body: Record<string, unknown>) => {
     const res = await fetch("/api/v1/connect/authorize", {
@@ -40,10 +44,17 @@ function Connect() {
   };
 
   useEffect(() => {
+    setFramed(window.top !== window);
+    if (params.get("auth_error"))
+      setError("Google sign-in didn't complete. Please try again or use email.");
     if (!clientName || !redirectUri) {
       setChecking(false);
       return;
     }
+    fetch("/api/auth/providers")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => setGoogle(!!p?.google))
+      .catch(() => {});
     authorize({})
       .then((d) => {
         if (d.redirect) location.assign(d.redirect);
@@ -92,6 +103,29 @@ function Connect() {
           </button>
         ))}
       </div>
+      {google && !notice && (
+        <form
+          className="connect-social"
+          action="/api/auth/social/google/start"
+          method="post"
+          target={framed ? "_blank" : undefined}
+          onSubmit={() => framed && setGoogleTab(true)}
+        >
+          <input type="hidden" name="intent" value="login" />
+          <input type="hidden" name="returnPath" value={returnPath} />
+          <button className="social-button google" type="submit" disabled={checking}>
+            <img src="/brand/google-g.png" width="20" height="20" alt="" />
+            <span>Continue with Google</span>
+          </button>
+          {googleTab && (
+            <p className="connect-hint" role="status">
+              Finish with Google in the new tab — {clientName} will update here
+              automatically.
+            </p>
+          )}
+          <div className="auth-divider">or use email</div>
+        </form>
+      )}
       {notice ? (
         <div className="connect-notice" role="status">
           <p>{notice}</p>
