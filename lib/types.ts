@@ -1,3 +1,4 @@
+import type { PostReaction } from "./reactions";
 export type User = { id: string; name: string; email: string };
 export type Circle = {
   id: string;
@@ -32,10 +33,7 @@ export type Post = {
   created: string;
   visibility: string;
   session_id: string | null;
-  hearts: number;
-  thanks: number;
-  hearted: number;
-  thanked: number;
+  reactions: PostReaction[];
   comments: {
     id: string;
     author: string;
