@@ -38,6 +38,7 @@ import { GratitudeVisual } from "@/components/gratitude-visual";
 import { BackgroundPicker } from "@/components/background-picker";
 import { validCardTheme } from "@/lib/card-themes";
 import { GratitudeReplyIcon } from "@/components/gratitude-reply-icon";
+import { ReactionBar } from "@/components/reaction-bar";
 import { ShareGratitude } from "@/components/share-gratitude";
 import { SocialLogin } from "@/components/social-login";
 import { authMessages } from "@/lib/auth-messages";
@@ -1985,18 +1986,13 @@ function PostCard({
                   personal={post.visibility === "direct"}
                 />
               )}
-              <button
-                disabled={busy}
-                className={post.hearted ? "on" : ""}
-                aria-label={post.hearted ? "Remove heart" : "Send a heart"}
-                aria-pressed={!!post.hearted}
-                onClick={() =>
-                  action({ action: "react", postId: post.id, kind: "heart" })
+              <ReactionBar
+                reactions={post.reactions ?? []}
+                busy={busy}
+                onReact={(kind) =>
+                  action({ action: "react", postId: post.id, kind })
                 }
-              >
-                <Heart fill={post.hearted ? "currentColor" : "none"} />
-                {post.hearts || <span className="sr-only">Heart</span>}
-              </button>
+              />
 
               {post.author !== userId && (
                 <button onClick={() => onSend(post)}>
