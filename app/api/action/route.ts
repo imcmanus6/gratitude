@@ -1,4 +1,5 @@
 import { validCardTheme } from "@/lib/card-themes";
+import { validVibe } from "@/lib/vibes";
 import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { db, id, now, membership, visiblePost, state } from "@/lib/db";
@@ -146,6 +147,9 @@ export async function POST(request: Request) {
             (background === "photo" && !d.image)
           )
             throw new Error("Choose a colour or attach a background photo.");
+          const vibe = d.vibe ? d.vibe : null;
+          if (vibe !== null && !validVibe(vibe))
+            throw new Error("Unknown good-vibes icon.");
           const visibility = ["private", "circle", "public", "direct"].includes(
             d.visibility,
           )
@@ -221,7 +225,7 @@ export async function POST(request: Request) {
           const postId = id();
           await db
             .prepare(
-              "INSERT INTO posts(id,circle_id,author,body,image,audio,created,visibility,session_id,background,recipient) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+              "INSERT INTO posts(id,circle_id,author,body,image,audio,created,visibility,session_id,background,recipient,vibe) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
             )
             .run(
               postId,
@@ -235,6 +239,7 @@ export async function POST(request: Request) {
               d.sessionId || null,
               background,
               recipient,
+              vibe,
             );
           for (const circleId of circleIds)
             await db

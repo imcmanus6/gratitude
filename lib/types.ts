@@ -27,6 +27,7 @@ export type Post = {
   body: string;
   image: string | null;
   background: string;
+  vibe: string | null;
   image_generated: number;
   audio: string | null;
   created: string;

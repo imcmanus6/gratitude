@@ -36,6 +36,8 @@ import {
 } from "lucide-react";
 import { GratitudeVisual } from "@/components/gratitude-visual";
 import { BackgroundPicker } from "@/components/background-picker";
+import { VibePicker } from "@/components/vibe-picker";
+import { validVibe } from "@/lib/vibes";
 import { validCardTheme } from "@/lib/card-themes";
 import { GratitudeReplyIcon } from "@/components/gratitude-reply-icon";
 import { ShareGratitude } from "@/components/share-gratitude";
@@ -158,6 +160,7 @@ export default function App() {
     [photo, setPhoto] = useState<string | null>(null),
     [background, setBackground] = useState("linen"),
     [imageGenerated, setImageGenerated] = useState(false),
+    [vibe, setVibe] = useState<string | null>(null),
     [creatingImage, setCreatingImage] = useState(false),
     [uploading, setUploading] = useState(false),
     [recording, setRecording] = useState(false),
@@ -228,6 +231,7 @@ export default function App() {
           background,
           photo,
           imageGenerated,
+          vibe,
         }),
       );
     }, 300);
@@ -240,6 +244,7 @@ export default function App() {
     background,
     photo,
     imageGenerated,
+    vibe,
     modal,
     data?.user.id,
   ]);
@@ -335,6 +340,7 @@ export default function App() {
     );
     setPhoto(draft.photo || null);
     setImageGenerated(!!draft.imageGenerated);
+    setVibe(validVibe(draft.vibe) ? draft.vibe : null);
     setPostCircle(circle?.id || draft.postCircle || data?.circles[0]?.id || "");
     setAudience(
       privateEntry
@@ -439,6 +445,7 @@ export default function App() {
           sourcePostId: directTo?.id,
           image: background === "photo" ? photo : null,
           background,
+          vibe,
           sessionId: live?.id,
         },
         directTo
@@ -726,6 +733,7 @@ export default function App() {
                     theme={p.background}
                     image={p.image ? `/api/media/${p.image}` : null}
                     generated={!!p.image_generated}
+                    vibe={p.vibe}
                   />
                 ))}
               {!data.posts.some(
@@ -1506,11 +1514,13 @@ export default function App() {
                       setImageGenerated(true);
                     }}
                   />
+                  <VibePicker value={vibe} onSelect={setVibe} />
                   <GratitudeVisual
                     body={body}
                     theme={background}
                     image={photo ? `/api/media/${photo}` : null}
                     generated={imageGenerated}
+                    vibe={vibe}
                     preview
                   />
                   <label className="button cursor-pointer">
@@ -2020,6 +2030,7 @@ function PostCard({
         theme={post.background}
         image={post.image ? `/api/media/${post.image}` : null}
         generated={!!post.image_generated}
+        vibe={post.vibe}
       />
       {showComments && (
         <div className="comments">
