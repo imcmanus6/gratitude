@@ -2,25 +2,22 @@ import type { ReactNode } from "react";
 import type { Vibe } from "@/lib/vibes";
 
 type Palette = {
-  from: string;
-  to: string;
-  petal: string;
-  ring: string;
   glyph: string;
-  glyphAccent?: string;
+  glyphAccent: string;
+  shadow: string;
 };
 
 const palettes: Record<Vibe, Palette> = {
-  heart: { from: "#ffd6dc", to: "#f0708a", petal: "#ffb3c1", ring: "#fff0f3", glyph: "#c2274a", glyphAccent: "#ffe6ea" },
-  prayer: { from: "#fbe9c8", to: "#d9a05b", petal: "#f4cf8e", ring: "#fff6e6", glyph: "#7a4a17", glyphAccent: "#fff1d6" },
-  mind_blown: { from: "#e5d9ff", to: "#8e63e8", petal: "#c9b3ff", ring: "#f5f0ff", glyph: "#3f2382", glyphAccent: "#ffd166" },
-  sunshine: { from: "#fff2b3", to: "#f5a623", petal: "#ffd75e", ring: "#fffbe6", glyph: "#c96a00", glyphAccent: "#fff8d6" },
-  rainbow: { from: "#e8f4ff", to: "#8fc7ff", petal: "#c4e2ff", ring: "#f4faff", glyph: "#e64e5e", glyphAccent: "#ffffff" },
-  earth: { from: "#cfeee0", to: "#3f9a76", petal: "#9fd9be", ring: "#eefaf3", glyph: "#1f5f8b", glyphAccent: "#7fcf9a" },
-  peace: { from: "#e0f0ff", to: "#6fa8dc", petal: "#b8d8f5", ring: "#f0f7ff", glyph: "#ffffff", glyphAccent: "#274d7a" },
-  lotus: { from: "#ffe3ef", to: "#e07ab0", petal: "#ffb9d8", ring: "#fff2f8", glyph: "#ffffff", glyphAccent: "#ffd66b" },
-  moon: { from: "#dfe3f7", to: "#5c68a8", petal: "#b7bfe8", ring: "#eef0fb", glyph: "#fff4c2", glyphAccent: "#ffffff" },
-  sparkle: { from: "#fdf6d8", to: "#e6b84a", petal: "#f7dd8f", ring: "#fffbea", glyph: "#ffffff", glyphAccent: "#b8791a" },
+  heart: { glyph: "#e04a6b", glyphAccent: "#ffd9e1", shadow: "#f0708a" },
+  prayer: { glyph: "#c98a4b", glyphAccent: "#fff1d6", shadow: "#d9a05b" },
+  mind_blown: { glyph: "#7b5be0", glyphAccent: "#ffd166", shadow: "#8e63e8" },
+  sunshine: { glyph: "#f2a21c", glyphAccent: "#fff3bf", shadow: "#f5a623" },
+  rainbow: { glyph: "#e64e5e", glyphAccent: "#ffffff", shadow: "#8fc7ff" },
+  earth: { glyph: "#2f7fb8", glyphAccent: "#6fcf8a", shadow: "#3f9a76" },
+  peace: { glyph: "#f4f7fb", glyphAccent: "#5b8fc4", shadow: "#6fa8dc" },
+  lotus: { glyph: "#ee8fbe", glyphAccent: "#ffd66b", shadow: "#e07ab0" },
+  moon: { glyph: "#f6d76b", glyphAccent: "#8f9be0", shadow: "#5c68a8" },
+  sparkle: { glyph: "#f3c14e", glyphAccent: "#fff6d6", shadow: "#e6b84a" },
 };
 
 const glyphs: Record<Vibe, (p: Palette) => ReactNode> = {
@@ -36,20 +33,18 @@ const glyphs: Record<Vibe, (p: Palette) => ReactNode> = {
   prayer: (p) => (
     <>
       <path
-        d="M31.2 17 c-2 3-6 12-6 19 c0 4 2.5 7.5 6 9 V17z"
+        d="M31.4 16 c-1.2 1.5-2.6 4.5-3.2 7.5 c-2.4 1.8-4.8 5.2-5.2 9.5 c-0.3 3.6 1.4 6.5 3.6 8 c1.2 0.8 2.9 1.4 4.8 1.6 V16z"
         fill={p.glyph}
       />
       <path
-        d="M32.8 17 c2 3 6 12 6 19 c0 4-2.5 7.5-6 9 V17z"
+        d="M32.6 16 c1.2 1.5 2.6 4.5 3.2 7.5 c2.4 1.8 4.8 5.2 5.2 9.5 c0.3 3.6-1.4 6.5-3.6 8 c-1.2 0.8-2.9 1.4-4.8 1.6 V16z"
         fill={p.glyph}
       />
-      <path d="M25.4 34 c-1.6 1-2.6 2.4-2.6 4.2 c0 1.6 1.2 2.6 2.6 3.2z" fill={p.glyph} />
-      <path d="M38.6 34 c1.6 1 2.6 2.4 2.6 4.2 c0 1.6-1.2 2.6-2.6 3.2z" fill={p.glyph} />
-      <path d="M32 18 V45" stroke={p.glyphAccent} strokeWidth="0.9" opacity="0.6" />
-      <path d="M31.2 45 h1.6" stroke={p.glyph} strokeWidth="1.5" />
-      <circle cx="32" cy="13" r="1.2" fill={p.glyphAccent} />
-      <circle cx="26.5" cy="15" r="0.9" fill={p.glyphAccent} />
-      <circle cx="37.5" cy="15" r="0.9" fill={p.glyphAccent} />
+      <path d="M28 24.5 c-2.6 1-4.6 3-5.4 5.4 c-0.3 1.2 1.2 1.6 2 0.8 c1.1-1.2 2.4-2.1 3.8-2.6z" fill={p.glyph} />
+      <path d="M36 24.5 c2.6 1 4.6 3 5.4 5.4 c0.3 1.2-1.2 1.6-2 0.8 c-1.1-1.2-2.4-2.1-3.8-2.6z" fill={p.glyph} />
+      <path d="M32 17 V42" stroke={p.glyphAccent} strokeWidth="0.8" opacity="0.7" />
+      <path d="M26.6 41 c1.6 1.2 3.4 1.9 5.4 2.1 c2-0.2 3.8-0.9 5.4-2.1 c-0.3 2.6-2.4 4.5-5.4 4.6 c-3-0.1-5.1-2-5.4-4.6z" fill={p.glyphAccent} />
+      <path d="M32 10 v2.5 M25.5 12.5 l1.4 2.2 M38.5 12.5 l-1.4 2.2" stroke={p.glyph} strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
     </>
   ),
   mind_blown: (p) => (
@@ -64,9 +59,9 @@ const glyphs: Record<Vibe, (p: Palette) => ReactNode> = {
         opacity="0.95"
       />
       <path d="M29 24 c1 1 1 3 0 4 M32 22 v9 M35 24 c-1 1-1 3 0 4" stroke={p.glyph} strokeWidth="0.9" fill="none" strokeLinecap="round" opacity="0.7" />
-      <path d="M32 9 v4 M22 12 l2.4 3.2 M42 12 l-2.4 3.2 M15 21 l3.8 1 M49 21 l-3.8 1" stroke={p.glyphAccent} strokeWidth="2" strokeLinecap="round" />
-      <circle cx="18.5" cy="14" r="1.2" fill={p.glyphAccent} />
-      <circle cx="45.5" cy="14" r="1.2" fill={p.glyphAccent} />
+      <path d="M32 13 v3.5 M23.5 15 l2.2 2.8 M40.5 15 l-2.2 2.8 M17.5 22 l3.5 1 M46.5 22 l-3.5 1" stroke={p.glyphAccent} strokeWidth="2" strokeLinecap="round" />
+      <circle cx="20" cy="16.5" r="1.1" fill={p.glyphAccent} />
+      <circle cx="44" cy="16.5" r="1.1" fill={p.glyphAccent} />
     </>
   ),
   sunshine: (p) => (
@@ -114,8 +109,11 @@ const glyphs: Record<Vibe, (p: Palette) => ReactNode> = {
       <path
         d="M22 36 c4-1 8-3 10-6 c1-2 1-5 4-7 c2-1 4 0 5 2 l4 1 l-3 1.5 c0 4-4 8-9 9 c-3 1-6 1-11 0z"
         fill={p.glyph}
+        stroke={p.glyphAccent}
+        strokeWidth="1.3"
+        strokeLinejoin="round"
       />
-      <path d="M31 30 c-1-5-4-8-8-9 c2 4 4 7 8 9z" fill={p.glyph} />
+      <path d="M31 30 c-1-5-4-8-8-9 c2 4 4 7 8 9z" fill={p.glyph} stroke={p.glyphAccent} strokeWidth="1.3" strokeLinejoin="round" />
       <path d="M26 39 c2 2 5 3 8 3" stroke={p.glyphAccent} strokeWidth="1.2" fill="none" strokeLinecap="round" />
       <circle cx="39" cy="24.6" r="0.9" fill={p.glyphAccent} />
       <path d="M40 22 c2-2 3-3 4-6 c-2 1-4 2-5 4" stroke="#7fcf9a" strokeWidth="1.5" fill="none" strokeLinecap="round" />
@@ -149,10 +147,7 @@ const glyphs: Record<Vibe, (p: Palette) => ReactNode> = {
   ),
 };
 
-/**
- * Emoji-style "good vibes" badge: a soft gradient disc wrapped in a
- * mandala of petals, with a glyph in the centre.
- */
+/** Emoji-style "good vibes" illustration: a soft, rounded glyph with a gentle glow. */
 export function VibeIcon({
   vibe,
   size = 48,
@@ -175,45 +170,13 @@ export function VibeIcon({
       focusable="false"
     >
       <defs>
-        <radialGradient id={`${uid}-disc`} cx="40%" cy="35%" r="70%">
-          <stop offset="0" stopColor={p.from} />
-          <stop offset="1" stopColor={p.to} />
-        </radialGradient>
-        <radialGradient id={`${uid}-glow`} cx="50%" cy="50%" r="50%">
-          <stop offset="0.6" stopColor="#ffffff" stopOpacity="0" />
-          <stop offset="1" stopColor="#ffffff" stopOpacity="0.55" />
-        </radialGradient>
+        <filter id={`${uid}-glow`} x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="1.2" stdDeviation="1.4" floodColor={p.shadow} floodOpacity="0.45" />
+        </filter>
       </defs>
-      <circle cx="32" cy="32" r="31" fill={`url(#${uid}-disc)`} />
-      {Array.from({ length: 12 }, (_, i) => (
-        <ellipse
-          key={`o${i}`}
-          cx="32"
-          cy="5.5"
-          rx="3.2"
-          ry="5.5"
-          fill={p.petal}
-          opacity="0.85"
-          transform={`rotate(${i * 30} 32 32)`}
-        />
-      ))}
-      {Array.from({ length: 12 }, (_, i) => (
-        <ellipse
-          key={`m${i}`}
-          cx="32"
-          cy="11"
-          rx="1.6"
-          ry="3"
-          fill={p.ring}
-          opacity="0.9"
-          transform={`rotate(${i * 30 + 15} 32 32)`}
-        />
-      ))}
-      <circle cx="32" cy="32" r="18.5" fill="none" stroke={p.ring} strokeWidth="1" opacity="0.8" />
-      <circle cx="32" cy="32" r="16.5" fill="none" stroke={p.ring} strokeWidth="0.6" strokeDasharray="1.2 2.2" opacity="0.8" />
-      {glyphs[vibe as Vibe](p)}
-      <circle cx="32" cy="32" r="31" fill={`url(#${uid}-glow)`} />
-      <ellipse cx="24" cy="18" rx="9" ry="5" fill="#ffffff" opacity="0.22" transform="rotate(-30 24 18)" />
+      <g filter={`url(#${uid}-glow)`} transform="translate(32 32) scale(1.55) translate(-32 -32)">
+        {glyphs[vibe as Vibe](p)}
+      </g>
     </svg>
   );
 }
