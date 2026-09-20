@@ -421,39 +421,6 @@ p {
 .post-actions button.on {
   color: #111;
 }
-.reaction-picker {
-  position: relative;
-  display: inline-flex;
-}
-.reaction-menu {
-  position: absolute;
-  left: 0;
-  bottom: calc(100% + 6px);
-  z-index: 20;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  width: 168px;
-  padding: 8px;
-  background: #fff;
-  border: 1px solid #e6e6e1;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-.reaction-menu button {
-  padding: 6px;
-  border-radius: 8px;
-  color: #555;
-}
-.reaction-menu button:hover,
-.reaction-menu button.on {
-  background: #f5f5f1;
-  color: #111;
-}
-.reaction-menu svg {
-  width: 18px;
-  height: 18px;
-}
 .post-image {
   width: 100%;
   max-height: 380px;

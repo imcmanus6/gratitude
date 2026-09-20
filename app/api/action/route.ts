@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { db, id, now, membership, visiblePost, state } from "@/lib/db";
 import { currentUser, fail, sameOrigin, text } from "@/lib/http";
-import { isReactionKind } from "@/lib/reactions";
 export async function POST(request: Request) {
   try {
     sameOrigin(request);
@@ -247,7 +246,7 @@ export async function POST(request: Request) {
         }
         case "react": {
           await requirePost();
-          if (!isReactionKind(d.kind))
+          if (!["heart", "thanks"].includes(d.kind))
             throw new Error("Unknown reaction.");
           const previous = await db
             .prepare(
