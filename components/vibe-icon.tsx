@@ -26,6 +26,11 @@ const palettes: Record<Vibe, Palette> = {
   cat: { glyph: "#f0a04b", glyphAccent: "#ffd9b3", shadow: "#c97a2a" },
   dog: { glyph: "#c98a55", glyphAccent: "#f3dcc1", shadow: "#9a6538" },
   family: { glyph: "#f28c8c", glyphAccent: "#6fa8dc", shadow: "#d96b6b" },
+  happy: { glyph: "#f6c65b", glyphAccent: "#3b2a1a", shadow: "#f5a623" },
+  joy: { glyph: "#f6c65b", glyphAccent: "#3b2a1a", shadow: "#f5a623" },
+  tree_of_life: { glyph: "#5aa35c", glyphAccent: "#8a5a30", shadow: "#3d7a40" },
+  mandala: { glyph: "#7b6bd6", glyphAccent: "#f2b134", shadow: "#5a4bb0" },
+  nature: { glyph: "#6fbf73", glyphAccent: "#fff3bf", shadow: "#3f8f45" },
 };
 
 const glyphs: Record<Vibe, (p: Palette) => ReactNode> = {
@@ -282,6 +287,86 @@ const glyphs: Record<Vibe, (p: Palette) => ReactNode> = {
       <path d="M37 21 c0.5-4 3-6 5.5-6 c2.5 0 4.5 2 4.5 5 c-1.5-1-3-1.5-5-1.5 c-2 0-3.5 1-5 2.5z" fill="#3a2a1a" />
       <path d="M28.3 31 c0.5-2.5 2-3.5 3.7-3.5 c1.7 0 3.2 1 3.7 3.5 c-1.2-0.8-2.4-1-3.7-1 c-1.3 0-2.5 0.2-3.7 1z" fill="#8a5a30" />
       <path d="M32 19 c1.2-2.4 4-2.4 4.6 0 c0.4 1.8-1.8 3.6-4.6 5.4 c-2.8-1.8-5-3.6-4.6-5.4 c0.6-2.4 3.4-2.4 4.6 0z" fill="#e0566b" />
+    </>
+  ),
+  happy: (p) => (
+    <>
+      <circle cx="32" cy="32" r="13.5" fill={p.glyph} />
+      <ellipse cx="25" cy="28" rx="2.4" ry="3.2" fill={p.glyphAccent} />
+      <ellipse cx="39" cy="28" rx="2.4" ry="3.2" fill={p.glyphAccent} />
+      <path d="M22.5 34.5 c2.5 8 16.5 8 19 0z" fill={p.glyphAccent} />
+      <path d="M25 37.5 c3.5 3.5 10.5 3.5 14 0 c-3.5-1-10.5-1-14 0z" fill="#e5635f" />
+      <circle cx="21.5" cy="34.5" r="2.4" fill="#ff8f8f" opacity="0.6" />
+      <circle cx="42.5" cy="34.5" r="2.4" fill="#ff8f8f" opacity="0.6" />
+      <ellipse cx="27" cy="22" rx="3.5" ry="1.8" fill="#ffffff" opacity="0.45" transform="rotate(-25 27 22)" />
+    </>
+  ),
+  joy: (p) => (
+    <>
+      <circle cx="32" cy="32" r="13.5" fill={p.glyph} />
+      <path d="M21.5 30 c1.5-3.5 5.5-3.5 7 0 M35.5 30 c1.5-3.5 5.5-3.5 7 0" stroke={p.glyphAccent} strokeWidth="1.9" fill="none" strokeLinecap="round" />
+      <path d="M23 33.5 c3 8 15 8 18 0z" fill={p.glyphAccent} />
+      <path d="M24.5 33.5 h15 c-0.5 1.6-1.5 2.4-2.5 2.4 h-10 c-1 0-2-0.8-2.5-2.4z" fill="#ffffff" />
+      <path d="M27 38.5 c2.5 2.5 7.5 2.5 10 0 c-2.5-0.8-7.5-0.8-10 0z" fill="#e5635f" />
+      <circle cx="21" cy="35" r="2.4" fill="#ff8f8f" opacity="0.6" />
+      <circle cx="43" cy="35" r="2.4" fill="#ff8f8f" opacity="0.6" />
+      <path d="M14 22 l2.4 2.4 M13 27 h3 M50 22 l-2.4 2.4 M51 27 h-3 M32 13 v3" stroke="#f2b134" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M46 40 c1.6 2.6 0.8 5-1.4 5 c-2.2 0-3-2.4-1.4-5 c0.6-1 1-1.8 1.4-2.8 c0.4 1 0.8 1.8 1.4 2.8z" fill="#6fa8dc" />
+    </>
+  ),
+  tree_of_life: (p) => (
+    <>
+      <circle cx="32" cy="32" r="16" fill="none" stroke={p.glyphAccent} strokeWidth="1.3" opacity="0.6" />
+      <path d="M32 47 c-1.4-4-1.4-8-0.8-12 M32 47 c1.4-4 1.4-8 0.8-12" stroke={p.glyphAccent} strokeWidth="2.6" fill="none" strokeLinecap="round" />
+      <path d="M31 35 c-3-2-6-2-8 1 M33 35 c3-2 6-2 8 1 M31.5 33 c-2-3-2-6-1-9 M32.5 33 c2-3 2-6 1-9 M31 34 c-4-1-6 1-8-3 M33 34 c4-1 6 1 8-3" stroke={p.glyphAccent} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      <path d="M22 47 c3-1.5 7-1.5 10 0 c3-1.5 7-1.5 10 0" stroke={p.glyphAccent} strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <circle cx="32" cy="22" r="5" fill={p.glyph} />
+      <circle cx="24.5" cy="25.5" r="4.4" fill={p.glyph} />
+      <circle cx="39.5" cy="25.5" r="4.4" fill={p.glyph} />
+      <circle cx="21" cy="32" r="3.8" fill="#4d9350" />
+      <circle cx="43" cy="32" r="3.8" fill="#4d9350" />
+      <circle cx="27" cy="31" r="3.6" fill="#7cc47f" />
+      <circle cx="37" cy="31" r="3.6" fill="#7cc47f" />
+      <circle cx="32" cy="28.5" r="3.2" fill="#8fd192" />
+      <circle cx="28" cy="24" r="1.2" fill="#f28c8c" />
+      <circle cx="36.5" cy="23" r="1.2" fill="#f28c8c" />
+      <circle cx="41" cy="30" r="1.1" fill="#f28c8c" />
+    </>
+  ),
+  mandala: (p) => (
+    <>
+      <circle cx="32" cy="32" r="16" fill="none" stroke={p.glyph} strokeWidth="1.2" opacity="0.5" />
+      <ellipse cx="32" cy="21" rx="3.2" ry="8" fill={p.glyph} opacity="0.9" transform="rotate(0 32 32)" />
+      <ellipse cx="32" cy="21" rx="3.2" ry="8" fill={p.glyph} opacity="0.9" transform="rotate(45 32 32)" />
+      <ellipse cx="32" cy="21" rx="3.2" ry="8" fill={p.glyph} opacity="0.9" transform="rotate(90 32 32)" />
+      <ellipse cx="32" cy="21" rx="3.2" ry="8" fill={p.glyph} opacity="0.9" transform="rotate(135 32 32)" />
+      <ellipse cx="32" cy="21" rx="3.2" ry="8" fill={p.glyph} opacity="0.9" transform="rotate(180 32 32)" />
+      <ellipse cx="32" cy="21" rx="3.2" ry="8" fill={p.glyph} opacity="0.9" transform="rotate(225 32 32)" />
+      <ellipse cx="32" cy="21" rx="3.2" ry="8" fill={p.glyph} opacity="0.9" transform="rotate(270 32 32)" />
+      <ellipse cx="32" cy="21" rx="3.2" ry="8" fill={p.glyph} opacity="0.9" transform="rotate(315 32 32)" />
+      <ellipse cx="32" cy="23.5" rx="2.4" ry="5.5" fill="#e07ab0" opacity="0.9" transform="rotate(22.5 32 32)" />
+      <ellipse cx="32" cy="23.5" rx="2.4" ry="5.5" fill="#e07ab0" opacity="0.9" transform="rotate(67.5 32 32)" />
+      <ellipse cx="32" cy="23.5" rx="2.4" ry="5.5" fill="#e07ab0" opacity="0.9" transform="rotate(112.5 32 32)" />
+      <ellipse cx="32" cy="23.5" rx="2.4" ry="5.5" fill="#e07ab0" opacity="0.9" transform="rotate(157.5 32 32)" />
+      <ellipse cx="32" cy="23.5" rx="2.4" ry="5.5" fill="#e07ab0" opacity="0.9" transform="rotate(202.5 32 32)" />
+      <ellipse cx="32" cy="23.5" rx="2.4" ry="5.5" fill="#e07ab0" opacity="0.9" transform="rotate(247.5 32 32)" />
+      <ellipse cx="32" cy="23.5" rx="2.4" ry="5.5" fill="#e07ab0" opacity="0.9" transform="rotate(292.5 32 32)" />
+      <ellipse cx="32" cy="23.5" rx="2.4" ry="5.5" fill="#e07ab0" opacity="0.9" transform="rotate(337.5 32 32)" />
+      <circle cx="32" cy="32" r="6" fill={p.glyphAccent} />
+      <circle cx="32" cy="32" r="3" fill="#fff3bf" />
+      <circle cx="32" cy="32" r="9.5" fill="none" stroke="#fff3bf" strokeWidth="1" opacity="0.8" />
+    </>
+  ),
+  nature: (p) => (
+    <>
+      <path d="M32 47 V30" stroke="#5a8a3a" strokeWidth="2" strokeLinecap="round" />
+      <path d="M31.5 24 c-9-1-14 5-15 12 c7 1 12-3 15-12z" fill={p.glyph} />
+      <path d="M32.5 24 c9-1 14 5 15 12 c-7 1-12-3-15-12z" fill="#4d9a52" />
+      <path d="M32 30 c-3 1-6 3-9 6 M32 30 c3 1 6 3 9 6" stroke={p.glyphAccent} strokeWidth="0.9" fill="none" strokeLinecap="round" opacity="0.8" />
+      <path d="M32 26 c-4-4-4-9 0-12 c4 3 4 8 0 12z" fill="#8fd192" />
+      <path d="M32 25 V16" stroke={p.glyphAccent} strokeWidth="0.8" strokeLinecap="round" opacity="0.8" />
+      <circle cx="44" cy="23" r="3" fill="#f2b134" />
+      <path d="M44 18.2 v1.4 M48.8 23 h-1.4 M47.4 19.6 l-1 1 M40.6 19.6 l1 1" stroke="#f2b134" strokeWidth="1.2" strokeLinecap="round" />
     </>
   ),
 };

@@ -18,6 +18,11 @@ export const VIBES = [
   { id: "cat", name: "Cat" },
   { id: "dog", name: "Dog" },
   { id: "family", name: "Family" },
+  { id: "happy", name: "Happy" },
+  { id: "joy", name: "Joy" },
+  { id: "tree_of_life", name: "Tree of life" },
+  { id: "mandala", name: "Mandala" },
+  { id: "nature", name: "Nature" },
 ] as const;
 
 export type Vibe = (typeof VIBES)[number]["id"];
