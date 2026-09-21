@@ -64,7 +64,11 @@ export async function state(user: {
     .all(user.id);
   const posts = (await db
     .prepare(
-      `SELECT p.*,u.name,(SELECT name FROM users WHERE id=p.recipient) as recipient_name,COALESCE((SELECT generated FROM uploads WHERE id=p.image),0) as image_generated
+      `SELECT p.*,u.name,(SELECT name FROM users WHERE id=p.recipient) as recipient_name,COALESCE((SELECT generated FROM uploads WHERE id=p.image),0) as image_generated,
+ (SELECT COUNT(*) FROM reactions r WHERE r.post_id=p.id AND r.kind='heart') as hearts,
+ (SELECT COUNT(*) FROM reactions r WHERE r.post_id=p.id AND r.kind='thanks') as thanks,
+ (SELECT COUNT(*) FROM reactions r WHERE r.post_id=p.id AND r.kind='heart' AND r.user_id=@user) as hearted,
+ (SELECT COUNT(*) FROM reactions r WHERE r.post_id=p.id AND r.kind='thanks' AND r.user_id=@user) as thanked
  FROM posts p JOIN users u ON u.id=p.author WHERE (p.author=@user OR (p.visibility='direct' AND p.recipient=@user) OR (p.visibility='public' AND u.demo=0 AND @demo=0) OR (p.visibility='circle' AND EXISTS(SELECT 1 FROM members m WHERE (m.circle_id=p.circle_id OR m.circle_id IN (SELECT pc.circle_id FROM post_circles pc WHERE pc.post_id=p.id)) AND m.user_id=@user))) AND NOT EXISTS(SELECT 1 FROM blocks b WHERE b.user_id=@user AND b.blocked_id=p.author) ORDER BY p.created DESC`,
     )
     .all({ user: user.id, demo: user.demo })) as any[];
@@ -76,11 +80,6 @@ export async function state(user: {
         )
         .all(post.id, user.id)) as { circle_id: string }[]
     ).map((c) => c.circle_id);
-    post.reactions = await db
-      .prepare(
-        "SELECT r.kind, COUNT(*) as count, MAX(CASE WHEN r.user_id=? THEN 1 ELSE 0 END) as mine FROM reactions r WHERE r.post_id=? GROUP BY r.kind ORDER BY count DESC, r.kind",
-      )
-      .all(user.id, post.id);
     post.comments = await db
       .prepare(
         "SELECT c.*,u.name FROM comments c JOIN users u ON u.id=c.author WHERE c.post_id=? AND NOT EXISTS(SELECT 1 FROM blocks b WHERE b.user_id=? AND b.blocked_id=c.author) ORDER BY c.created",

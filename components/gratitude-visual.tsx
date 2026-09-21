@@ -1,11 +1,14 @@
 "use client";
 import { useState, ReactNode } from "react";
 import { cardAppearance } from "@/lib/card-themes";
+import { vibeName, isLineVibe } from "@/lib/vibes";
+import { VibeIcon } from "./vibe-icon";
 export function GratitudeVisual({
   body,
   theme = "linen",
   image,
   generated = false,
+  vibe = null,
   preview = false,
   header,
   footer,
@@ -16,6 +19,7 @@ export function GratitudeVisual({
   theme?: string;
   image?: string | null;
   generated?: boolean;
+  vibe?: string | null;
   preview?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -42,6 +46,11 @@ export function GratitudeVisual({
       {hasImage && <div className="gratitude-scrim" />}
       <div className="gratitude-visual-content">
         {header}
+        {vibe && (
+          <div className={`gratitude-vibe ${isLineVibe(vibe) ? "is-line" : ""}`} role="img" aria-label={vibeName(vibe)}>
+            <VibeIcon vibe={vibe} size={preview ? 72 : 84} />
+          </div>
+        )}
         <p className={`gratitude-words ${display.length > 220 ? "long" : ""}`}>
           {display || "The little thing you’re grateful for…"}
         </p>

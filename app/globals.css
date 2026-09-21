@@ -421,39 +421,6 @@ p {
 .post-actions button.on {
   color: #111;
 }
-.reaction-picker {
-  position: relative;
-  display: inline-flex;
-}
-.reaction-menu {
-  position: absolute;
-  left: 0;
-  bottom: calc(100% + 6px);
-  z-index: 20;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  width: 168px;
-  padding: 8px;
-  background: #fff;
-  border: 1px solid #e6e6e1;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-.reaction-menu button {
-  padding: 6px;
-  border-radius: 8px;
-  color: #555;
-}
-.reaction-menu button:hover,
-.reaction-menu button.on {
-  background: #f5f5f1;
-  color: #111;
-}
-.reaction-menu svg {
-  width: 18px;
-  height: 18px;
-}
 .post-image {
   width: 100%;
   max-height: 380px;
@@ -1020,6 +987,74 @@ p {
 }
 .is-preview .gratitude-words.long {
   font-size: 19px;
+}
+.gratitude-vibe {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 -12px;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.18));
+}
+.gratitude-vibe svg {
+  display: block;
+}
+.vibe-picker {
+  margin: 20px 0;
+}
+.vibe-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 10px;
+  margin-top: 12px;
+}
+.vibe-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 64px;
+  padding: 6px 2px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  background: transparent;
+  font-size: 10px;
+  color: #555;
+  line-height: 1.2;
+  text-align: center;
+}
+.vibe-option svg {
+  transition: transform 0.15s ease;
+}
+.vibe-option:hover svg {
+  transform: scale(1.08);
+}
+.vibe-option[aria-checked="true"] {
+  border-color: #333;
+  background: rgba(0, 0, 0, 0.04);
+  color: #222;
+}
+.vibe-picker .field-hint {
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: #777;
+}
+.vibe-option.vibe-line svg {
+  color: #222;
+  padding: 4px;
+}
+.gratitude-vibe.is-line {
+  filter: none;
+  opacity: 0.92;
+}
+.vibe-none-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed #bbb;
+  color: #999;
+  font-size: 20px;
 }
 .background-picker {
   margin: 20px 0;

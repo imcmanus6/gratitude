@@ -122,6 +122,8 @@ CREATE TABLE IF NOT EXISTS blocks (user_id TEXT REFERENCES users(id), blocked_id
     );
     db.exec("UPDATE posts SET background='photo' WHERE image IS NOT NULL");
   }
+  if (!postColumns.some((c) => c.name === "vibe"))
+    db.exec("ALTER TABLE posts ADD COLUMN vibe TEXT");
   const uploadColumns = db.prepare("PRAGMA table_info(uploads)").all() as {
     name: string;
   }[];
