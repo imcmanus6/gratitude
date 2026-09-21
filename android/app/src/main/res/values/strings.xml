@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Gratitude Circles</string>
+    <string name="asset_statements">[{"include":"https://gratitude.iskind.net/.well-known/assetlinks.json"}]</string>
+</resources>
