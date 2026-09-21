@@ -1522,7 +1522,7 @@ export default function App() {
                       ) : (
                         <Smile size={15} />
                       )}
-                      {vibe ? vibeName(vibe) : "Icon"}
+                      {vibe ? vibeName(vibe) : "Add emoji / icon"}
                     </button>
                     <button
                       type="button"
