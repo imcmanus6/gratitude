@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { currentUser, sameOrigin, fail, text } from "@/lib/http";
 import { db } from "@/lib/db";
-import { pushConfiguration, validateSubscription } from "@/lib/push";
+import {
+  emailReminderConfigured,
+  pushConfiguration,
+  validateSubscription,
+} from "@/lib/push";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export async function GET() {
@@ -10,11 +14,21 @@ export async function GET() {
     return NextResponse.json(
       {
         publicKey: pushConfiguration()?.publicKey || null,
+        emailConfigured: emailReminderConfigured(),
+        emailVerified: !!(
+          (await db
+            .prepare("SELECT email_verified FROM users WHERE id=?")
+            .get(user.id)) as { email_verified: number }
+        )?.email_verified,
         subscriptions: await db
           .prepare(
             "SELECT endpoint,timezone FROM push_subscriptions WHERE user_id=?",
           )
           .all(user.id),
+        email:
+          (await db
+            .prepare("SELECT timezone FROM email_reminders WHERE user_id=?")
+            .get(user.id)) || null,
       },
       { headers: { "Cache-Control": "no-store" } },
     );
@@ -27,6 +41,32 @@ export async function POST(request: Request) {
     sameOrigin(request);
     const user = await currentUser();
     const d = await request.json();
+    if (d.action === "email-disable") {
+      await db
+        .prepare("DELETE FROM email_reminders WHERE user_id=?")
+        .run(user.id);
+      return NextResponse.json({ ok: true });
+    }
+    if (d.action === "email-enable") {
+      if (user.demo)
+        throw new Error("Create your own account to enable email reminders.");
+      if (!emailReminderConfigured())
+        throw new Error("Email reminders are not configured yet.");
+      const verified = (
+        (await db
+          .prepare("SELECT email_verified FROM users WHERE id=?")
+          .get(user.id)) as { email_verified: number }
+      )?.email_verified;
+      if (!verified) throw new Error("Confirm your email address first.");
+      const timezone = text(d.timezone, 100);
+      new Intl.DateTimeFormat("en-GB", { timeZone: timezone }).format();
+      await db
+        .prepare(
+          "INSERT INTO email_reminders(user_id,timezone) VALUES(?,?) ON CONFLICT(user_id) DO UPDATE SET timezone=excluded.timezone",
+        )
+        .run(user.id, timezone);
+      return NextResponse.json({ ok: true });
+    }
     if (d.action === "disable") {
       await db
         .prepare(

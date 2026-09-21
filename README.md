@@ -36,7 +36,7 @@ With the app running, `npx playwright test` runs browser and HTTP integration te
 - Dictation beside the text box converts speech to text where supported. Voice-note recording, uploading, attachment and playback are disabled. Existing audio records are retained but no longer served.
 - Heart/appreciation toggles, comments, own-comment deletion, author text editing, author/organiser post deletion, reporting and hiding a person's content.
 - Custom prompts, a prompt library, quantity, daily/weekly frequency, day, time and IANA time zone.
-- In-app reminders while the app is open; per-circle mute. Recurring `.ics` calendar reminders work outside the app after the member imports them into a calendar. No push or email delivery is claimed.
+- In-app reminders while the app is open; per-circle mute. Recurring `.ics` calendar reminders work outside the app after the member imports them into a calendar. Daily push and email reminders are available as explicit opt-ins.
 - Host-started live sessions, shared prompt, private/shared capture, closing reflections and grouped session records. Session state refreshes every 20 seconds while the page is visible.
 - Export of the current user's entries as JSON (text and media references).
 - Server-enforced circle/private visibility, including media access; strangers and former members cannot access circle content.
@@ -52,7 +52,7 @@ This deployment model needs one long-running Node server with durable disk. It i
 The Nai board contains a larger product roadmap than this initial app. These are not yet implemented:
 
 - Slack/Teams installation, message publishing and channel mapping.
-- Push/email delivery, reminder inbox, snooze, quiet hours, exceptions and multiple schedules.
+- Reminder inbox, snooze, quiet hours, exceptions and multiple schedules.
 - Email verification, password recovery and production abuse/rate-limit infrastructure.
 - Co-hosts, membership management, archive/delete circle, invite approval and QR invitations.
 - Facilitator-only/ephemeral audiences, speaking order/presence and reusable facilitator programmes.
@@ -61,7 +61,7 @@ The Nai board contains a larger product roadmap than this initial app. These are
 - Reporting review console: reports are stored for an app administrator but are not automatically reviewed or notified.
 - Billing/paywalls: intentionally absent, following the free-launch decision.
 
-No external messages are sent and no service credentials from Meditate are copied.
+Daily reminder and account emails use the configured Resend service; no service credentials from Meditate are copied.
 
 ## Source and design provenance
 

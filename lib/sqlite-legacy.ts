@@ -62,6 +62,9 @@ CREATE TABLE IF NOT EXISTS blocks (user_id TEXT REFERENCES users(id), blocked_id
   db.exec(
     "CREATE TABLE IF NOT EXISTS api_keys (hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, name TEXT NOT NULL, created INTEGER NOT NULL, last_used INTEGER)",
   );
+  db.exec(
+    "CREATE TABLE IF NOT EXISTS email_reminders (user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, timezone TEXT NOT NULL, last_day TEXT, lease INTEGER NOT NULL DEFAULT 0)",
+  );
   db.exec(`CREATE TABLE IF NOT EXISTS post_circles (post_id TEXT REFERENCES posts(id) ON DELETE CASCADE, circle_id TEXT REFERENCES circles(id) ON DELETE CASCADE, PRIMARY KEY(post_id,circle_id));
   INSERT OR IGNORE INTO post_circles SELECT id,circle_id FROM posts WHERE circle_id IS NOT NULL AND visibility='circle';`);
   if (

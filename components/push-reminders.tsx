@@ -4,6 +4,9 @@ export function PushReminders({ demo }: { demo: boolean }) {
   const [ready, setReady] = useState(false),
     [supported, setSupported] = useState(false),
     [enabled, setEnabled] = useState(false),
+    [emailEnabled, setEmailEnabled] = useState(false),
+    [emailConfigured, setEmailConfigured] = useState(false),
+    [emailVerified, setEmailVerified] = useState(false),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
   const [key, setKey] = useState<string | null>(null),
@@ -20,27 +23,30 @@ export function PushReminders({ demo }: { demo: boolean }) {
       "PushManager" in window &&
       "Notification" in window;
     setSupported(can);
-    if (!can) {
-      setReady(true);
-      return;
-    }
     (async () => {
       try {
-        const reg = await navigator.serviceWorker.register("/sw.js");
-        await navigator.serviceWorker.ready;
         const res = await fetch("/api/push");
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
-        const sub = await reg.pushManager.getSubscription();
         if (!active) return;
-        setRegistration(reg);
+        setEmailConfigured(data.emailConfigured);
+        setEmailVerified(data.emailVerified);
+        setEmailEnabled(!!data.email);
+        if (data.email?.timezone) setZone(data.email.timezone);
         setKey(data.publicKey);
-        const saved = data.subscriptions.find(
-          (s: { endpoint: string; timezone: string }) =>
-            s.endpoint === sub?.endpoint,
-        );
-        setEnabled(!!saved && Notification.permission === "granted");
-        if (saved) setZone(saved.timezone);
+        if (can) {
+          const reg = await navigator.serviceWorker.register("/sw.js");
+          await navigator.serviceWorker.ready;
+          const sub = await reg.pushManager.getSubscription();
+          if (!active) return;
+          setRegistration(reg);
+          const saved = data.subscriptions.find(
+            (s: { endpoint: string; timezone: string }) =>
+              s.endpoint === sub?.endpoint,
+          );
+          setEnabled(!!saved && Notification.permission === "granted");
+          if (saved) setZone(saved.timezone);
+        }
       } catch {
         if (active)
           setMessage(
@@ -170,6 +176,51 @@ export function PushReminders({ demo }: { demo: boolean }) {
           Preview notification
         </button>
       )}
+      <p>
+        Prefer email? We can also send the 9 p.m. reminder to your account
+        email.
+      </p>
+      {!emailConfigured && ready && (
+        <p className="field-help">
+          Email reminders are awaiting server configuration.
+        </p>
+      )}
+      {!emailVerified && ready && emailConfigured && (
+        <p className="field-help">
+          Confirm your email address in Settings to receive email reminders.
+        </p>
+      )}
+      <button
+        className="button"
+        disabled={!ready || demo || !emailConfigured || !emailVerified || busy}
+        onClick={async () => {
+          setBusy(true);
+          setMessage("");
+          try {
+            await save({
+              action: emailEnabled ? "email-disable" : "email-enable",
+              timezone:
+                zone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+            });
+            setEmailEnabled(!emailEnabled);
+            setMessage(
+              emailEnabled
+                ? "Daily email reminders turned off."
+                : "Daily email reminders enabled for 9 p.m.",
+            );
+          } catch (e) {
+            setMessage((e as Error).message);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {busy
+          ? "One moment…"
+          : emailEnabled
+            ? "Turn off email reminders"
+            : "Email me at 9 p.m."}
+      </button>
       {message && (
         <p role="status" className="field-help">
           {message}

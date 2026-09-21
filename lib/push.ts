@@ -1,5 +1,7 @@
+import { randomUUID } from "node:crypto";
 import webpush from "web-push";
 import { db } from "./db";
+import { emailConfiguration } from "./email-auth";
 export function pushConfiguration() {
   const publicKey = process.env.VAPID_PUBLIC_KEY,
     privateKey = process.env.VAPID_PRIVATE_KEY,
@@ -74,11 +76,11 @@ export async function dispatchReminders(
   for (const row of rows) {
     const day = dueDay(row.timezone, date);
     if (!day || row.last_day === day) continue;
-    const claim = (await db
-          .prepare(
-            "UPDATE push_subscriptions SET lease=? WHERE endpoint=? AND (last_day IS NULL OR last_day<>?) AND lease<?",
-          )
-          .run(date.getTime() + 120000, row.endpoint, day, date.getTime()));
+    const claim = await db
+      .prepare(
+        "UPDATE push_subscriptions SET lease=? WHERE endpoint=? AND (last_day IS NULL OR last_day<>?) AND lease<?",
+      )
+      .run(date.getTime() + 120000, row.endpoint, day, date.getTime());
     if (!claim.changes) continue;
     try {
       await send(
@@ -97,20 +99,95 @@ export async function dispatchReminders(
           topic: "daily-gratitude",
         },
       );
-      (await db.prepare(
-                "UPDATE push_subscriptions SET last_day=?,lease=0 WHERE endpoint=?",
-              ).run(day, row.endpoint));
+      await db
+        .prepare(
+          "UPDATE push_subscriptions SET last_day=?,lease=0 WHERE endpoint=?",
+        )
+        .run(day, row.endpoint);
     } catch (e) {
       const status = (e as { statusCode?: number }).statusCode;
       if (status === 404 || status === 410)
-        (await db.prepare("DELETE FROM push_subscriptions WHERE endpoint=?").run(
-                    row.endpoint,
-                  ));
+        await db
+          .prepare("DELETE FROM push_subscriptions WHERE endpoint=?")
+          .run(row.endpoint);
       // Keep the lease as retry backoff; never log subscription URLs or keys.
       else
         console.error(
           "Reminder delivery failed; will retry within the reminder window.",
         );
+    }
+  }
+}
+export function emailReminderConfigured() {
+  try {
+    emailConfiguration();
+    return true;
+  } catch {
+    return false;
+  }
+}
+export async function sendReminderEmail(email: string, origin: string) {
+  const config = emailConfiguration();
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    signal: AbortSignal.timeout(15000),
+    headers: {
+      Authorization: `Bearer ${config.key}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": randomUUID(),
+    },
+    body: JSON.stringify({
+      from: config.from,
+      to: [email],
+      subject: "A little gratitude before the day ends",
+      text: `What are you grateful for today? Take a moment to notice the good.\n\nOpen Gratitude Circles: ${origin}/\n\nYou can turn this daily email off in Settings.`,
+    }),
+  });
+  if (!response.ok) throw new Error("delivery");
+}
+export async function dispatchEmailReminders(
+  date = new Date(),
+  send = sendReminderEmail,
+) {
+  const config = (() => {
+    try {
+      return emailConfiguration();
+    } catch {
+      return null;
+    }
+  })();
+  if (!config) return;
+  const rows = (await db
+    .prepare(
+      "SELECT r.user_id, r.timezone, r.last_day, r.lease, u.email FROM email_reminders r JOIN users u ON u.id=r.user_id WHERE u.demo=0 AND u.email_verified=1",
+    )
+    .all()) as {
+    user_id: string;
+    timezone: string;
+    last_day: string | null;
+    lease: number;
+    email: string;
+  }[];
+  for (const row of rows) {
+    const day = dueDay(row.timezone, date);
+    if (!day || row.last_day === day) continue;
+    const claim = await db
+      .prepare(
+        "UPDATE email_reminders SET lease=? WHERE user_id=? AND (last_day IS NULL OR last_day<>?) AND lease<?",
+      )
+      .run(date.getTime() + 120000, row.user_id, day, date.getTime());
+    if (!claim.changes) continue;
+    try {
+      await send(row.email, config.origin);
+      await db
+        .prepare(
+          "UPDATE email_reminders SET last_day=?,lease=0 WHERE user_id=?",
+        )
+        .run(day, row.user_id);
+    } catch {
+      console.error(
+        "Email reminder delivery failed; will retry within the reminder window.",
+      );
     }
   }
 }
