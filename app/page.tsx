@@ -11,7 +11,7 @@ import {
   Heart,
   MessageCircle,
   Users,
-  Smile,
+  SmilePlus,
   Eye,
   Home,
   BookOpen,
@@ -1520,7 +1520,7 @@ export default function App() {
                       {vibe ? (
                         <VibeIcon vibe={vibe} size={18} />
                       ) : (
-                        <Smile size={15} />
+                        <SmilePlus size={15} />
                       )}
                       {vibe ? vibeName(vibe) : "Add emoji / icon"}
                     </button>
