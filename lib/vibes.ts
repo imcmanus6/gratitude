@@ -12,6 +12,9 @@ export const VIBES = [
   { id: "sparkle", name: "Sparkle" },
   { id: "pot_of_gold", name: "Pot of gold" },
   { id: "clover", name: "Lucky clover" },
+  { id: "health", name: "Health" },
+  { id: "food", name: "Good food" },
+  { id: "beauty", name: "Beauty" },
 ] as const;
 
 export type Vibe = (typeof VIBES)[number]["id"];
