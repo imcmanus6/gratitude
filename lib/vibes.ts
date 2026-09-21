@@ -25,12 +25,39 @@ export const VIBES = [
   { id: "nature", name: "Nature" },
 ] as const;
 
-export type Vibe = (typeof VIBES)[number]["id"];
+/** Line-art vibes drawn in the card's text colour (see components/vibe-line-icons.tsx). */
+export const LINE_VIBES = [
+  { id: "hug", name: "Hug" },
+  { id: "helping_hand", name: "Helping hand" },
+  { id: "giving", name: "Giving" },
+  { id: "grateful", name: "Grateful" },
+  { id: "community", name: "Community" },
+  { id: "home", name: "Home" },
+  { id: "mindfulness", name: "Mindfulness" },
+  { id: "inner_peace", name: "Inner peace" },
+  { id: "calm", name: "Calm" },
+  { id: "balance", name: "Balance" },
+  { id: "clarity", name: "Clarity" },
+  { id: "wellness", name: "Wellness" },
+  { id: "growth", name: "Growth" },
+  { id: "strength", name: "Strength" },
+  { id: "courage", name: "Courage" },
+  { id: "fresh_start", name: "Fresh start" },
+] as const;
 
-export function validVibe(value: unknown): value is Vibe {
-  return typeof value === "string" && VIBES.some((v) => v.id === value);
+export const ALL_VIBES = [...VIBES, ...LINE_VIBES];
+
+export type Vibe = (typeof VIBES)[number]["id"];
+export type LineVibe = (typeof LINE_VIBES)[number]["id"];
+
+export function validVibe(value: unknown): value is Vibe | LineVibe {
+  return typeof value === "string" && ALL_VIBES.some((v) => v.id === value);
 }
 
 export function vibeName(id: string): string {
-  return VIBES.find((v) => v.id === id)?.name ?? id;
+  return ALL_VIBES.find((v) => v.id === id)?.name ?? id;
+}
+
+export function isLineVibe(id: string): id is LineVibe {
+  return LINE_VIBES.some((v) => v.id === id);
 }

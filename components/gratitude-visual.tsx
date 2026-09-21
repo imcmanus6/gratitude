@@ -1,7 +1,7 @@
 "use client";
 import { useState, ReactNode } from "react";
 import { cardAppearance } from "@/lib/card-themes";
-import { vibeName } from "@/lib/vibes";
+import { vibeName, isLineVibe } from "@/lib/vibes";
 import { VibeIcon } from "./vibe-icon";
 export function GratitudeVisual({
   body,
@@ -47,7 +47,7 @@ export function GratitudeVisual({
       <div className="gratitude-visual-content">
         {header}
         {vibe && (
-          <div className="gratitude-vibe" role="img" aria-label={vibeName(vibe)}>
+          <div className={`gratitude-vibe ${isLineVibe(vibe) ? "is-line" : ""}`} role="img" aria-label={vibeName(vibe)}>
             <VibeIcon vibe={vibe} size={preview ? 72 : 84} />
           </div>
         )}
