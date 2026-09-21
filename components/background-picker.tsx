@@ -106,7 +106,7 @@ export function BackgroundPicker({
       </div>
       <button
         type="button"
-        className="button"
+        className="button ai-toggle"
         onClick={open}
         aria-expanded={show}
       >

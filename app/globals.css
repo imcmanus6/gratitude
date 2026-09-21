@@ -988,10 +988,19 @@ p {
 .is-preview .gratitude-words.long {
   font-size: 19px;
 }
+.gratitude-center {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.gratitude-center .gratitude-words {
+  margin: 0;
+}
 .gratitude-vibe {
   display: flex;
   justify-content: center;
-  margin: 4px 0 -12px;
+  margin: 14px 0 0;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.18));
 }
 .gratitude-vibe svg {
@@ -1057,22 +1066,22 @@ p {
   font-size: 20px;
 }
 .background-picker {
-  margin: 20px 0;
+  margin: 10px 0;
 }
 .background-swatches {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 14px 0 22px;
+  gap: 8px;
+  margin: 8px 0 10px;
 }
 .background-swatches button {
   position: relative;
   border-radius: 50%;
-  width: 46px;
-  height: 46px;
+  width: 38px;
+  height: 38px;
   border: 2px solid transparent;
   box-shadow: 0 0 0 1px #ddd;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 .background-swatches button[aria-pressed="true"] {
   outline: 2px solid #333;
@@ -1080,11 +1089,11 @@ p {
 }
 .background-swatches button span {
   position: absolute;
-  top: 51px;
+  top: 42px;
   left: 50%;
   transform: translateX(-50%);
   color: #555;
-  font-size: 10px;
+  font-size: 9px;
   white-space: nowrap;
 }
 .ai-controls {
@@ -1154,25 +1163,72 @@ p {
   justify-content: flex-start;
 }
 .audience-picker {
-  border: 1px solid #ddd;
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
-.audience-picker label {
+.segmented {
+  display: inline-flex;
+  border: 1px solid #d5d5d0;
+  border-radius: 999px;
+  padding: 3px;
+  background: #f4f4f0;
+}
+.segmented button {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #555;
+  min-height: 32px;
+}
+.segmented button[aria-checked="true"] {
+  background: #222;
+  color: #fff;
+}
+.circle-chips {
   display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.audience-picker .circle-chip {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  min-height: 44px;
+  gap: 6px;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  padding: 2px 10px 2px 6px;
+  font-size: 13px;
+  min-height: 30px;
+  line-height: 1.2;
 }
-.audience-picker input {
-  width: 18px;
-  height: 18px;
+.circle-chip input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
 }
-.circle-choices {
-  border-top: 1px solid #eee;
-  margin-top: 10px;
-  padding-top: 10px;
+.circle-chip:has(input:checked) {
+  border-color: #222;
+  background: #fafaf7;
+}
+.composer-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+}
+.composer-tools .button {
+  min-height: 40px;
+  margin: 0;
+  padding: 0 12px;
+}
+.composer-tools .button[aria-expanded="true"] {
+  border-color: #222;
+}
+.composer-tools .button svg {
+  flex: none;
 }
 .sponsor-card {
   border: 1px solid #deded6;
@@ -1411,15 +1467,29 @@ p {
   padding: 10px 16px;
   white-space: nowrap;
 }
-.minimal-topbar > .account-dropdown { justify-self: end; }
+.minimal-topbar > .account-dropdown {
+  justify-self: end;
+}
 @media (max-width: 640px) {
-  .minimal-topbar { padding-left: 16px; padding-right: 16px; }
-  .topbar-add { font-size: 14px; padding: 10px 12px; }
+  .minimal-topbar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .topbar-add {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
 }
 
-.minimal-topbar { border-bottom: 0; }
-.main-feed:has(.post) { padding-top: 0 !important; }
-.main-feed:has(.post) > .heading { display: none; }
+.minimal-topbar {
+  border-bottom: 0;
+}
+.main-feed:has(.post) {
+  padding-top: 0 !important;
+}
+.main-feed:has(.post) > .heading {
+  display: none;
+}
 
 .meditate-sponsor-art {
   background: #111;
@@ -1431,9 +1501,20 @@ p {
   flex-direction: column;
   align-items: center;
 }
-.meditate-sponsor-symbol { width: 108px; height: 108px; color: white; }
-.meditate-sponsor-name { font-size: 11px; letter-spacing: .26em; margin-top: 8px; }
-.meditate-sponsor-art p { font-size: 28px; margin: 18px 0 0; }
+.meditate-sponsor-symbol {
+  width: 108px;
+  height: 108px;
+  color: white;
+}
+.meditate-sponsor-name {
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  margin-top: 8px;
+}
+.meditate-sponsor-art p {
+  font-size: 28px;
+  margin: 18px 0 0;
+}
 
 /* Embedded partner connect page (/connect) — compact, mobile-first */
 .connect {
@@ -1446,21 +1527,106 @@ p {
   flex-direction: column;
   justify-content: center;
 }
-.connect h1 { font-size: 28px; margin: 6px 0 8px; }
-.connect-kicker { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #777; }
-.connect-sub, .connect-foot, .connect-hint { font-size: 13px; line-height: 1.6; color: #666; }
-.connect-hint { margin: 4px 0 0; font-size: 11px; }
-.connect-foot { margin-top: 18px; text-align: center; }
-.connect-foot .text-button { font-size: 13px; color: #222; text-decoration: underline; }
-.connect-tabs { display: flex; gap: 4px; margin: 18px 0 12px; padding: 4px; background: #f2f2f0; border-radius: 9px; }
-.connect-tabs button { flex: 1; border: 0; background: transparent; padding: 9px; border-radius: 6px; font-size: 13px; color: #666; }
-.connect-tabs button.active { background: white; color: #111; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
-.connect form label { display: block; margin-top: 12px; }
-.connect form input { width: 100%; min-height: 44px; font-size: 16px; }
-.connect .button.primary { width: 100%; margin-top: 18px; min-height: 46px; font-size: 14px; }
-.connect .error { margin-top: 10px; }
-.connect-notice { margin-top: 12px; padding: 14px; border: 1px solid #e4e4e0; border-radius: 12px; font-size: 13px; line-height: 1.6; }
-@media (min-width: 700px) { .connect { padding: 40px 32px; } }
-.connect-social { margin-top: 4px; }
-.connect-social .social-button { width: 100%; min-height: 44px; }
-.connect-social .auth-divider { margin: 14px 0 0; }
+.connect h1 {
+  font-size: 28px;
+  margin: 6px 0 8px;
+}
+.connect-kicker {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #777;
+}
+.connect-sub,
+.connect-foot,
+.connect-hint {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #666;
+}
+.connect-hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+}
+.connect-foot {
+  margin-top: 18px;
+  text-align: center;
+}
+.connect-foot .text-button {
+  font-size: 13px;
+  color: #222;
+  text-decoration: underline;
+}
+.connect-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 18px 0 12px;
+  padding: 4px;
+  background: #f2f2f0;
+  border-radius: 9px;
+}
+.connect-tabs button {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  padding: 9px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #666;
+}
+.connect-tabs button.active {
+  background: white;
+  color: #111;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.connect form label {
+  display: block;
+  margin-top: 12px;
+}
+.connect form input {
+  width: 100%;
+  min-height: 44px;
+  font-size: 16px;
+}
+.connect .button.primary {
+  width: 100%;
+  margin-top: 18px;
+  min-height: 46px;
+  font-size: 14px;
+}
+.connect .error {
+  margin-top: 10px;
+}
+.connect-notice {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid #e4e4e0;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+@media (min-width: 700px) {
+  .connect {
+    padding: 40px 32px;
+  }
+}
+.connect-social {
+  margin-top: 4px;
+}
+.connect-social .social-button {
+  width: 100%;
+  min-height: 44px;
+}
+.connect-social .auth-divider {
+  margin: 14px 0 0;
+}
+.background-picker .ai-toggle {
+  min-height: 36px;
+  padding: 0 12px;
+}
+.composer-help {
+  margin: 4px 0 0;
+}
+.composer-help + .modal-actions {
+  margin-top: 14px;
+}

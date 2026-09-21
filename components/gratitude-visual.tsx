@@ -46,14 +46,22 @@ export function GratitudeVisual({
       {hasImage && <div className="gratitude-scrim" />}
       <div className="gratitude-visual-content">
         {header}
-        {vibe && (
-          <div className={`gratitude-vibe ${isLineVibe(vibe) ? "is-line" : ""}`} role="img" aria-label={vibeName(vibe)}>
-            <VibeIcon vibe={vibe} size={preview ? 72 : 84} />
-          </div>
-        )}
-        <p className={`gratitude-words ${display.length > 220 ? "long" : ""}`}>
-          {display || "The little thing you’re grateful for…"}
-        </p>
+        <div className="gratitude-center">
+          <p
+            className={`gratitude-words ${display.length > 220 ? "long" : ""}`}
+          >
+            {display || "The little thing you’re grateful for…"}
+          </p>
+          {vibe && (
+            <div
+              className={`gratitude-vibe ${isLineVibe(vibe) ? "is-line" : ""}`}
+              role="img"
+              aria-label={vibeName(vibe)}
+            >
+              <VibeIcon vibe={vibe} size={preview ? 56 : 68} />
+            </div>
+          )}
+        </div>
         {long && !preview && (
           <button
             type="button"
