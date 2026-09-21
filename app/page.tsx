@@ -11,6 +11,8 @@ import {
   Heart,
   MessageCircle,
   Users,
+  Smile,
+  Eye,
   Home,
   BookOpen,
   Sun,
@@ -37,7 +39,8 @@ import {
 import { GratitudeVisual } from "@/components/gratitude-visual";
 import { BackgroundPicker } from "@/components/background-picker";
 import { VibePicker } from "@/components/vibe-picker";
-import { validVibe } from "@/lib/vibes";
+import { validVibe, vibeName } from "@/lib/vibes";
+import { VibeIcon } from "@/components/vibe-icon";
 import { validCardTheme } from "@/lib/card-themes";
 import { GratitudeReplyIcon } from "@/components/gratitude-reply-icon";
 import { ShareGratitude } from "@/components/share-gratitude";
@@ -161,6 +164,8 @@ export default function App() {
     [background, setBackground] = useState("linen"),
     [imageGenerated, setImageGenerated] = useState(false),
     [vibe, setVibe] = useState<string | null>(null),
+    [showVibes, setShowVibes] = useState(false),
+    [showPreview, setShowPreview] = useState(false),
     [creatingImage, setCreatingImage] = useState(false),
     [uploading, setUploading] = useState(false),
     [recording, setRecording] = useState(false),
@@ -334,7 +339,15 @@ export default function App() {
       );
     } catch {}
     setBody(draft.body || "");
-    setPostCircles(circle ? [circle.id] : draft.postCircles || []);
+    setPostCircles(
+      circle
+        ? [circle.id]
+        : draft.postCircles?.length
+          ? draft.postCircles
+          : (data?.circles || []).map((c) => c.id),
+    );
+    setShowVibes(false);
+    setShowPreview(false);
     setBackground(
       validCardTheme(draft.background) ? draft.background : "linen",
     );
@@ -343,11 +356,7 @@ export default function App() {
     setVibe(validVibe(draft.vibe) ? draft.vibe : null);
     setPostCircle(circle?.id || draft.postCircle || data?.circles[0]?.id || "");
     setAudience(
-      privateEntry
-        ? "private"
-        : circle
-          ? "circle"
-          : draft.audience || "private",
+      privateEntry ? "private" : circle ? "circle" : draft.audience || "circle",
     );
   }
   function navigate(next: View) {
@@ -1166,9 +1175,8 @@ export default function App() {
               <div className="settings-card">
                 <h2 className="serif">An easier way in.</h2>
                 <p>
-                  Connect Google to sign in without another
-                  password. This does not give permission to publish your
-                  gratitudes.
+                  Connect Google to sign in without another password. This does
+                  not give permission to publish your gratitudes.
                 </p>
                 <SocialLogin link demo={data.demo} />
               </div>
@@ -1305,7 +1313,7 @@ export default function App() {
           if (!value) close();
         }}
       >
-        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[540px]">
+        <DialogContent className="max-h-[94dvh] overflow-y-auto sm:max-w-[540px]">
           <DialogHeader>
             <DialogTitle className="serif text-3xl">
               {
@@ -1412,39 +1420,32 @@ export default function App() {
                       </p>
                     </div>
                   ) : (
-                    <fieldset className="audience-picker">
-                      <legend>Who can see this gratitude?</legend>
-                      <label>
-                        <input
-                          type="radio"
-                          name="audience-choice"
-                          checked={audience === "private"}
-                          onChange={() => setAudience("private")}
-                        />
-                        Only me · private journal
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name="audience-choice"
-                          checked={audience === "circle"}
-                          onChange={() => setAudience("circle")}
-                        />
-                        Selected circles
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name="audience-choice"
-                          checked={audience === "public"}
-                          onChange={() => setAudience("public")}
-                        />
-                        Public · everyone on Gratitude Circles
-                      </label>
-                      {audience !== "private" && (
-                        <div className="circle-choices">
+                    <div className="audience-picker">
+                      <div
+                        className="segmented"
+                        role="radiogroup"
+                        aria-label="Who can see this gratitude?"
+                      >
+                        {[
+                          ["circle", "Circles"],
+                          ["private", "Private"],
+                          ["public", "Public"],
+                        ].map(([value, label]) => (
+                          <button
+                            key={value}
+                            type="button"
+                            role="radio"
+                            aria-checked={audience === value}
+                            onClick={() => setAudience(value)}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                      {audience !== "private" && data.circles.length > 0 && (
+                        <div className="circle-chips">
                           {data.circles.map((c) => (
-                            <label key={c.id}>
+                            <label key={c.id} className="circle-chip">
                               <input
                                 type="checkbox"
                                 checked={postCircles.includes(c.id)}
@@ -1460,14 +1461,9 @@ export default function App() {
                               {c.name}
                             </label>
                           ))}
-                          <p className="field-help">
-                            {audience === "public"
-                              ? "This entry is public, even when also shared with selected circles."
-                              : "Only members of the circles you choose can read this entry."}
-                          </p>
                         </div>
                       )}
-                    </fieldset>
+                    </div>
                   )}
                   {live && (
                     <p className="field-help">Session prompt: {live.prompt}</p>
@@ -1494,7 +1490,7 @@ export default function App() {
                     required
                     maxLength={5000}
                     placeholder="The person, the moment, the little thing…"
-                    rows={6}
+                    rows={3}
                   />
                   <div className="flex justify-between mt-2">
                     <span className="field-help">
@@ -1514,28 +1510,53 @@ export default function App() {
                       setImageGenerated(true);
                     }}
                   />
-                  <VibePicker value={vibe} onSelect={setVibe} />
-                  <GratitudeVisual
-                    body={body}
-                    theme={background}
-                    image={photo ? `/api/media/${photo}` : null}
-                    generated={imageGenerated}
-                    vibe={vibe}
-                    preview
-                  />
-                  <label className="button cursor-pointer">
-                    <ImagePlus size={15} />
-                    {uploading ? "Uploading photo…" : "Add a photo"}
-                    <input
-                      className="sr-only"
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      disabled={uploading}
-                      onChange={(e) => upload(e.target.files?.[0])}
+                  <div className="composer-tools">
+                    <button
+                      type="button"
+                      className="button"
+                      aria-expanded={showVibes}
+                      onClick={() => setShowVibes(!showVibes)}
+                    >
+                      {vibe ? (
+                        <VibeIcon vibe={vibe} size={18} />
+                      ) : (
+                        <Smile size={15} />
+                      )}
+                      {vibe ? vibeName(vibe) : "Icon"}
+                    </button>
+                    <button
+                      type="button"
+                      className="button"
+                      aria-expanded={showPreview}
+                      onClick={() => setShowPreview(!showPreview)}
+                    >
+                      <Eye size={15} />
+                      Preview
+                    </button>
+                    <label className="button cursor-pointer">
+                      <ImagePlus size={15} />
+                      {uploading ? "Uploading…" : "Photo"}
+                      <input
+                        className="sr-only"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        disabled={uploading}
+                        onChange={(e) => upload(e.target.files?.[0])}
+                      />
+                    </label>
+                  </div>
+                  {showVibes && <VibePicker value={vibe} onSelect={setVibe} />}
+                  {showPreview && (
+                    <GratitudeVisual
+                      body={body}
+                      theme={background}
+                      image={photo ? `/api/media/${photo}` : null}
+                      generated={imageGenerated}
+                      vibe={vibe}
+                      preview
                     />
-                  </label>
-
-                  <p className="field-help">
+                  )}
+                  <p className="field-help composer-help">
                     <Lock size={11} className="inline mr-1" />
                     {directTo
                       ? audience === "public"
