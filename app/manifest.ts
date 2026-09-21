@@ -12,9 +12,8 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         platform: "play",
         id: "net.iskind.gratitude",
-      } as unknown as NonNullable<
-        MetadataRoute.Manifest["related_applications"]
-      >[number],
+        url: "https://play.google.com/store/apps/details?id=net.iskind.gratitude",
+      },
     ],
     background_color: "#ffffff",
     theme_color: "#ffffff",
