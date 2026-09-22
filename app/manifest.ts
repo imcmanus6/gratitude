@@ -8,6 +8,13 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
+    related_applications: [
+      {
+        platform: "play",
+        id: "net.iskind.gratitude",
+        url: "https://play.google.com/store/apps/details?id=net.iskind.gratitude",
+      },
+    ],
     background_color: "#ffffff",
     theme_color: "#ffffff",
     icons: [
