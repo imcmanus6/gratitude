@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS oauth_identities (provider TEXT NOT NULL, subject TEX
 CREATE TABLE IF NOT EXISTS oauth_attempts (state_hash TEXT PRIMARY KEY, browser_hash TEXT NOT NULL, provider TEXT NOT NULL, verifier TEXT NOT NULL, nonce TEXT NOT NULL, return_path TEXT NOT NULL, link_user TEXT REFERENCES users(id) ON DELETE CASCADE, expires INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS auth_sessions (token TEXT PRIMARY KEY, user_id TEXT REFERENCES users(id) ON DELETE CASCADE, expires INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS oauth_receipts (receipt_hash TEXT PRIMARY KEY, state_hash TEXT NOT NULL REFERENCES oauth_attempts(state_hash) ON DELETE CASCADE, browser_hash TEXT NOT NULL, payload TEXT NOT NULL, expires INTEGER NOT NULL);
-CREATE TABLE IF NOT EXISTS push_subscriptions (endpoint TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, subscription TEXT NOT NULL, timezone TEXT NOT NULL, last_day TEXT, lease INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS push_subscriptions (endpoint TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, subscription TEXT NOT NULL, timezone TEXT NOT NULL, time TEXT NOT NULL DEFAULT '21:00', last_day TEXT, lease INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS circles (id TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', owner TEXT REFERENCES users(id), invite TEXT UNIQUE NOT NULL, prompt TEXT DEFAULT 'What are you grateful for today?', cadence TEXT DEFAULT 'daily', day TEXT DEFAULT 'Friday', time TEXT DEFAULT '21:00', timezone TEXT DEFAULT 'Europe/London', count INTEGER DEFAULT 3);
 CREATE TABLE IF NOT EXISTS members (circle_id TEXT REFERENCES circles(id) ON DELETE CASCADE, user_id TEXT REFERENCES users(id) ON DELETE CASCADE, role TEXT NOT NULL DEFAULT 'member', muted INTEGER DEFAULT 0, PRIMARY KEY (circle_id,user_id));
 CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, circle_id TEXT REFERENCES circles(id) ON DELETE CASCADE, host TEXT REFERENCES users(id), prompt TEXT NOT NULL, created TEXT NOT NULL, ended TEXT, reflection TEXT DEFAULT '');
@@ -62,8 +62,18 @@ CREATE TABLE IF NOT EXISTS blocks (user_id TEXT REFERENCES users(id), blocked_id
   db.exec(
     "CREATE TABLE IF NOT EXISTS api_keys (hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, name TEXT NOT NULL, created INTEGER NOT NULL, last_used INTEGER)",
   );
+  if (
+    !(
+      db.prepare("PRAGMA table_info(push_subscriptions)").all() as {
+        name: string;
+      }[]
+    ).some((c) => c.name === "time")
+  )
+    db.exec(
+      "ALTER TABLE push_subscriptions ADD COLUMN time TEXT NOT NULL DEFAULT '21:00'",
+    );
   db.exec(
-    "CREATE TABLE IF NOT EXISTS email_reminders (user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, timezone TEXT NOT NULL, last_day TEXT, lease INTEGER NOT NULL DEFAULT 0)",
+    "CREATE TABLE IF NOT EXISTS email_reminders (user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, timezone TEXT NOT NULL, time TEXT NOT NULL DEFAULT '21:00', last_day TEXT, lease INTEGER NOT NULL DEFAULT 0)",
   );
   db.exec(`CREATE TABLE IF NOT EXISTS post_circles (post_id TEXT REFERENCES posts(id) ON DELETE CASCADE, circle_id TEXT REFERENCES circles(id) ON DELETE CASCADE, PRIMARY KEY(post_id,circle_id));
   INSERT OR IGNORE INTO post_circles SELECT id,circle_id FROM posts WHERE circle_id IS NOT NULL AND visibility='circle';`);

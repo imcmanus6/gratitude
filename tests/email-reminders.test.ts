@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-test("daily email reminders follow local 9pm, deduplicate, retry leases, and cascade", async () => {
+test("daily email reminders follow a selected local time, deduplicate, retry leases, and cascade", async () => {
   const folder = mkdtempSync(path.join(tmpdir(), "gratitude-email-reminders-"));
   process.env.GRATITUDE_DATA_DIR = folder;
   process.env.RESEND_API_KEY = "test-only";
@@ -32,13 +32,15 @@ test("daily email reminders follow local 9pm, deduplicate, retry leases, and cas
     for (const user of ["verified", "unverified", "demo"])
       await db
         .prepare(
-          "INSERT INTO email_reminders(user_id,timezone) VALUES(?,'Europe/London')",
+          "INSERT INTO email_reminders(user_id,timezone,time) VALUES(?,'Europe/London','07:30')",
         )
         .run(user);
     const send = async (email: string) => {
       sent.push(email);
     };
-    const first = new Date("2026-07-01T20:00:00Z");
+    const first = new Date("2026-07-01T06:30:00Z");
+    await dispatchEmailReminders(new Date("2026-07-01T20:00:00Z"), send);
+    assert.deepEqual(sent, []);
     await dispatchEmailReminders(first, send);
     await dispatchEmailReminders(new Date(first.getTime() + 60000), send);
     assert.deepEqual(sent, ["verified@example.invalid"]);

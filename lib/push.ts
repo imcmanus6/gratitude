@@ -44,7 +44,13 @@ export function validateSubscription(value: unknown): webpush.PushSubscription {
     keys: { auth: s.keys.auth, p256dh: s.keys.p256dh },
   };
 }
-export function dueDay(timezone: string, date = new Date()) {
+export function validateTime(value: unknown): string {
+  if (typeof value !== "string" || !/^([01]\d|2[0-3]):[0-5]\d$/.test(value))
+    throw new Error("Choose a valid reminder time.");
+  return value;
+}
+export function dueDay(timezone: string, date = new Date(), time = "21:00") {
+  const [hour, minute] = validateTime(time).split(":").map(Number);
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: timezone,
     year: "numeric",
@@ -56,9 +62,28 @@ export function dueDay(timezone: string, date = new Date()) {
   }).formatToParts(date);
   const p = (key: string) => parts.find((v) => v.type === key)!.value;
   // A short retry window avoids delivering yesterday's reminder after an outage.
-  return p("hour") === "21" && Number(p("minute")) < 15
-    ? `${p("year")}-${p("month")}-${p("day")}`
-    : null;
+  const current = Number(p("hour")) * 60 + Number(p("minute"));
+  const target = hour * 60 + minute;
+  const end = (target + 15) % 1440;
+  const due =
+    target + 15 < 1440
+      ? current >= target && current < target + 15
+      : current >= target || current < end;
+  if (!due) return null;
+  const day = `${p("year")}-${p("month")}-${p("day")}`;
+  if (target + 15 < 1440 || current >= target) return day;
+  const previous = new Date(date.getTime() - 86400000);
+  const previousParts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(previous);
+  const previousPart = (key: string) =>
+    previousParts.find((v) => v.type === key)!.value;
+  return `${previousPart("year")}-${previousPart("month")}-${previousPart(
+    "day",
+  )}`;
 }
 export async function dispatchReminders(
   date = new Date(),
@@ -66,15 +91,20 @@ export async function dispatchReminders(
 ) {
   const config = pushConfiguration();
   if (!config) return;
-  const rows = (await db.prepare("SELECT * FROM push_subscriptions").all()) as {
+  const rows = (await db
+    .prepare(
+      "SELECT endpoint,subscription,timezone,time,last_day,lease FROM push_subscriptions",
+    )
+    .all()) as {
     endpoint: string;
     subscription: string;
     timezone: string;
+    time: string;
     last_day: string | null;
     lease: number;
   }[];
   for (const row of rows) {
-    const day = dueDay(row.timezone, date);
+    const day = dueDay(row.timezone, date, row.time);
     if (!day || row.last_day === day) continue;
     const claim = await db
       .prepare(
@@ -159,17 +189,18 @@ export async function dispatchEmailReminders(
   if (!config) return;
   const rows = (await db
     .prepare(
-      "SELECT r.user_id, r.timezone, r.last_day, r.lease, u.email FROM email_reminders r JOIN users u ON u.id=r.user_id WHERE u.demo=0 AND u.email_verified=1",
+      "SELECT r.user_id, r.timezone, r.time, r.last_day, r.lease, u.email FROM email_reminders r JOIN users u ON u.id=r.user_id WHERE u.demo=0 AND u.email_verified=1",
     )
     .all()) as {
     user_id: string;
     timezone: string;
+    time: string;
     last_day: string | null;
     lease: number;
     email: string;
   }[];
   for (const row of rows) {
-    const day = dueDay(row.timezone, date);
+    const day = dueDay(row.timezone, date, row.time);
     if (!day || row.last_day === day) continue;
     const claim = await db
       .prepare(

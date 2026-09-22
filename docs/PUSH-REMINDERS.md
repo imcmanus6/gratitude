@@ -1,6 +1,10 @@
 # Daily phone reminders
 
-Settings → Your daily gratitude reminder → Remind me at 9 p.m. is an explicit opt-in per device, independent of circle schedules. Accounts in the demo cannot subscribe. The browser asks for notification permission. The reminder repeats daily even if the user has already posted. Preview notification tests local display, not server delivery.
+Settings → Your daily gratitude reminder lets each user choose a time (the
+default is 9 p.m.) as an explicit opt-in per device, independent of circle
+schedules. Accounts in the demo cannot subscribe. The browser asks for
+notification permission. The reminder repeats daily even if the user has
+already posted. Preview notification tests local display, not server delivery.
 
 This repository currently ships a web app, not native iOS/Android binaries. Web Push requires HTTPS (localhost is allowed for development). On iPhone/iPad, add the live app to the Home Screen and open it there before enabling notifications. Native store builds will need their own APNs/FCM or local-notification integration; no native integration is claimed here.
 
@@ -8,7 +12,14 @@ This repository currently ships a web app, not native iOS/Android binaries. Web 
 
 Configure VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT in the deployment environment. Generate a key pair once with web-push.generateVAPIDKeys(); never rotate it casually or expose the private key. Local keys are configured in the ignored .env.local. The contact subject is mailto:gratitude@iskind.net.
 
-The selected device time zone is saved when enabling. DST is automatic. When travelling, disable and enable to use the new device time zone. Reminders dispatch between 21:00 and 21:15 local time, with a 15-minute push TTL, persistent daily deduplication, and a two-minute retry lease. Expired subscriptions (404/410) are deleted. Rare duplicate delivery after a worker crash is possible; a daily notification tag and fixed push topic coalesce retries. OS focus modes, offline devices and push-provider delays can defer or suppress display.
+The selected reminder time and device time zone are saved when enabling. DST
+is automatic. When travelling, disable and enable to use the new device time
+zone. Reminders dispatch during the selected time's 15-minute local window,
+with a 15-minute push TTL, persistent daily deduplication, and a two-minute
+retry lease. Expired subscriptions (404/410) are deleted. Rare duplicate
+delivery after a worker crash is possible; a daily notification tag and fixed
+push topic coalesce retries. OS focus modes, offline devices and push-provider
+delays can defer or suppress display.
 
 Only known HTTPS browser push-service domains are accepted. Subscriptions belong to the authenticated user, are capped at ten per account, and cascade on account deletion. Turning reminders off removes this device's server subscription and browser subscription. Signing out does not disable the opted-in daily reminder (the payload contains no personal content); turn reminders off in Settings if using a shared device. Notifications open the app home page, where Add gratitude is in the top bar.
 
@@ -16,8 +27,9 @@ Tests mock push delivery; actual phone delivery must be verified on the deployed
 
 ## Email reminders
 
-Settings can also opt an account into the 9 p.m. reminder by email. Configure
-`RESEND_API_KEY`, `AUTH_EMAIL_FROM` and `AUTH_ORIGIN` for Resend delivery. Only
-verified, non-demo accounts can receive email reminders. Email delivery uses
-the selected time zone and the same 21:00–21:15 local window, daily
-deduplication and two-minute retry lease as phone reminders.
+Settings can also opt an account into the chosen reminder time by email (the
+default is 9 p.m.). Configure `RESEND_API_KEY`, `AUTH_EMAIL_FROM` and
+`AUTH_ORIGIN` for Resend delivery. Only verified, non-demo accounts can
+receive email reminders. Email delivery uses the selected time zone and the
+same 15-minute local window, daily deduplication and two-minute retry lease as
+phone reminders.

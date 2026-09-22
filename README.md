@@ -36,7 +36,7 @@ With the app running, `npx playwright test` runs browser and HTTP integration te
 - Dictation beside the text box converts speech to text where supported. Voice-note recording, uploading, attachment and playback are disabled. Existing audio records are retained but no longer served.
 - Heart/appreciation toggles, comments, own-comment deletion, author text editing, author/organiser post deletion, reporting and hiding a person's content.
 - Custom prompts, a prompt library, quantity, daily/weekly frequency, day, time and IANA time zone.
-- In-app reminders while the app is open; per-circle mute. Recurring `.ics` calendar reminders work outside the app after the member imports them into a calendar. Daily push and email reminders are available as explicit opt-ins.
+- In-app reminders while the app is open; per-circle mute. Recurring `.ics` calendar reminders work outside the app after the member imports them into a calendar. Daily push and email reminders at a time users choose (default 9 p.m.) are available as explicit opt-ins.
 - Host-started live sessions, shared prompt, private/shared capture, closing reflections and grouped session records. Session state refreshes every 20 seconds while the page is visible.
 - Export of the current user's entries as JSON (text and media references).
 - Server-enforced circle/private visibility, including media access; strangers and former members cannot access circle content.
