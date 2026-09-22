@@ -2,7 +2,7 @@
 
 Settings → Your daily gratitude reminder → Remind me at 9 p.m. is an explicit opt-in per device, independent of circle schedules. Accounts in the demo cannot subscribe. The browser asks for notification permission. The reminder repeats daily even if the user has already posted. Preview notification tests local display, not server delivery.
 
-This repository currently ships a web app, not native iOS/Android binaries. Web Push requires HTTPS (localhost is allowed for development). On iPhone/iPad, add the live app to the Home Screen and open it there before enabling notifications. Native store builds will need their own APNs/FCM or local-notification integration; no native integration is claimed here.
+This repository currently ships a web app and an Android Google Play Trusted Web Activity (TWA), not native iOS/Android binaries. Web Push requires HTTPS (localhost is allowed for development). On iPhone/iPad, add the live app to the Home Screen and open it there before enabling notifications. The Android TWA uses Chrome and the existing PWA service worker; native iOS store builds would need their own APNs/FCM or local-notification integration.
 
 `npm start` starts both Next.js and a separate reminder worker. Deploy it as an always-on Node process with persistent SQLite storage, preserving this startup command. The worker checks every 30 seconds; an asleep laptop or stopped server cannot send. For a separate worker deployment use `npm run reminders` with the same persistent database and environment. A serverless Next deployment alone does not run this worker.
 

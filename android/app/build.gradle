@@ -1,0 +1,48 @@
+plugins {
+    id "com.android.application"
+}
+
+def releaseSigning = [
+    storeFile: System.getenv("GRATITUDE_ANDROID_KEYSTORE"),
+    storePassword: System.getenv("GRATITUDE_ANDROID_KEYSTORE_PASSWORD"),
+    keyAlias: System.getenv("GRATITUDE_ANDROID_KEY_ALIAS"),
+    keyPassword: System.getenv("GRATITUDE_ANDROID_KEY_PASSWORD")
+]
+def hasReleaseSigning = releaseSigning.values().every { it }
+
+android {
+    namespace "net.iskind.gratitude"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "net.iskind.gratitude"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    signingConfigs {
+        release {
+            if (hasReleaseSigning) {
+                storeFile file(releaseSigning.storeFile)
+                storePassword releaseSigning.storePassword
+                keyAlias releaseSigning.keyAlias
+                keyPassword releaseSigning.keyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation "com.google.androidbrowserhelper:androidbrowserhelper:2.5.0"
+}
