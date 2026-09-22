@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { currentUser, sameOrigin, fail, text } from "@/lib/http";
 import { db } from "@/lib/db";
-import { pushConfiguration, validateSubscription } from "@/lib/push";
+import {
+  emailReminderConfigured,
+  pushConfiguration,
+  validateTime,
+  validateSubscription,
+} from "@/lib/push";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export async function GET() {
@@ -10,11 +15,23 @@ export async function GET() {
     return NextResponse.json(
       {
         publicKey: pushConfiguration()?.publicKey || null,
+        emailConfigured: emailReminderConfigured(),
+        emailVerified: !!(
+          (await db
+            .prepare("SELECT email_verified FROM users WHERE id=?")
+            .get(user.id)) as { email_verified: number }
+        )?.email_verified,
         subscriptions: await db
           .prepare(
-            "SELECT endpoint,timezone FROM push_subscriptions WHERE user_id=?",
+            "SELECT endpoint,timezone,time FROM push_subscriptions WHERE user_id=?",
           )
           .all(user.id),
+        email:
+          (await db
+            .prepare(
+              "SELECT timezone,time FROM email_reminders WHERE user_id=?",
+            )
+            .get(user.id)) || null,
       },
       { headers: { "Cache-Control": "no-store" } },
     );
@@ -27,6 +44,45 @@ export async function POST(request: Request) {
     sameOrigin(request);
     const user = await currentUser();
     const d = await request.json();
+    if (d.action === "time") {
+      const time = validateTime(d.time);
+      await db.transaction(async () => {
+        await db
+          .prepare("UPDATE push_subscriptions SET time=? WHERE user_id=?")
+          .run(time, user.id);
+        await db
+          .prepare("UPDATE email_reminders SET time=? WHERE user_id=?")
+          .run(time, user.id);
+      })();
+      return NextResponse.json({ ok: true });
+    }
+    if (d.action === "email-disable") {
+      await db
+        .prepare("DELETE FROM email_reminders WHERE user_id=?")
+        .run(user.id);
+      return NextResponse.json({ ok: true });
+    }
+    if (d.action === "email-enable") {
+      if (user.demo)
+        throw new Error("Create your own account to enable email reminders.");
+      if (!emailReminderConfigured())
+        throw new Error("Email reminders are not configured yet.");
+      const verified = (
+        (await db
+          .prepare("SELECT email_verified FROM users WHERE id=?")
+          .get(user.id)) as { email_verified: number }
+      )?.email_verified;
+      if (!verified) throw new Error("Confirm your email address first.");
+      const timezone = text(d.timezone, 100),
+        time = validateTime(d.time ?? "21:00");
+      new Intl.DateTimeFormat("en-GB", { timeZone: timezone }).format();
+      await db
+        .prepare(
+          "INSERT INTO email_reminders(user_id,timezone,time) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET timezone=excluded.timezone,time=excluded.time",
+        )
+        .run(user.id, timezone, time);
+      return NextResponse.json({ ok: true });
+    }
     if (d.action === "disable") {
       await db
         .prepare(
@@ -40,7 +96,8 @@ export async function POST(request: Request) {
     if (!pushConfiguration())
       throw new Error("Phone reminders are not configured yet.");
     const s = validateSubscription(d.subscription),
-      timezone = text(d.timezone, 100);
+      timezone = text(d.timezone, 100),
+      time = validateTime(d.time ?? "21:00");
     new Intl.DateTimeFormat("en-GB", { timeZone: timezone }).format();
     await db.transaction(async () => {
       const owner = (await db
@@ -59,9 +116,9 @@ export async function POST(request: Request) {
         throw new Error("You already have reminders enabled on ten devices.");
       await db
         .prepare(
-          "INSERT INTO push_subscriptions(endpoint,user_id,subscription,timezone) VALUES(?,?,?,?) ON CONFLICT(endpoint) DO UPDATE SET subscription=excluded.subscription,timezone=excluded.timezone",
+          "INSERT INTO push_subscriptions(endpoint,user_id,subscription,timezone,time) VALUES(?,?,?,?,?) ON CONFLICT(endpoint) DO UPDATE SET subscription=excluded.subscription,timezone=excluded.timezone,time=excluded.time",
         )
-        .run(s.endpoint, user.id, JSON.stringify(s), timezone);
+        .run(s.endpoint, user.id, JSON.stringify(s), timezone, time);
     })();
     return NextResponse.json({ ok: true });
   } catch (e) {

@@ -1,13 +1,24 @@
 "use client";
 import { useEffect, useState } from "react";
+function formatTime(value: string) {
+  const [hour, minute] = value.split(":").map(Number);
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(2000, 0, 1, hour, minute));
+}
 export function PushReminders({ demo }: { demo: boolean }) {
   const [ready, setReady] = useState(false),
     [supported, setSupported] = useState(false),
     [enabled, setEnabled] = useState(false),
+    [emailEnabled, setEmailEnabled] = useState(false),
+    [emailConfigured, setEmailConfigured] = useState(false),
+    [emailVerified, setEmailVerified] = useState(false),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
   const [key, setKey] = useState<string | null>(null),
-    [zone, setZone] = useState("");
+    [zone, setZone] = useState(""),
+    [time, setTime] = useState("21:00");
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
   useEffect(() => {
@@ -20,27 +31,34 @@ export function PushReminders({ demo }: { demo: boolean }) {
       "PushManager" in window &&
       "Notification" in window;
     setSupported(can);
-    if (!can) {
-      setReady(true);
-      return;
-    }
     (async () => {
       try {
-        const reg = await navigator.serviceWorker.register("/sw.js");
-        await navigator.serviceWorker.ready;
         const res = await fetch("/api/push");
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
-        const sub = await reg.pushManager.getSubscription();
         if (!active) return;
-        setRegistration(reg);
+        setEmailConfigured(data.emailConfigured);
+        setEmailVerified(data.emailVerified);
+        setEmailEnabled(!!data.email);
+        if (data.email?.timezone) setZone(data.email.timezone);
+        if (data.email?.time) setTime(data.email.time);
         setKey(data.publicKey);
-        const saved = data.subscriptions.find(
-          (s: { endpoint: string; timezone: string }) =>
-            s.endpoint === sub?.endpoint,
-        );
-        setEnabled(!!saved && Notification.permission === "granted");
-        if (saved) setZone(saved.timezone);
+        if (can) {
+          const reg = await navigator.serviceWorker.register("/sw.js");
+          await navigator.serviceWorker.ready;
+          const sub = await reg.pushManager.getSubscription();
+          if (!active) return;
+          setRegistration(reg);
+          const saved = data.subscriptions.find(
+            (s: { endpoint: string; timezone: string; time: string }) =>
+              s.endpoint === sub?.endpoint,
+          );
+          setEnabled(!!saved && Notification.permission === "granted");
+          if (saved) {
+            setZone(saved.timezone);
+            setTime(saved.time || "21:00");
+          }
+        }
       } catch {
         if (active)
           setMessage(
@@ -63,13 +81,36 @@ export function PushReminders({ demo }: { demo: boolean }) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
   }
+  async function changeTime(next: string) {
+    if (!next) return;
+    setTime(next);
+    if (!enabled && !emailEnabled) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      await save({ action: "time", time: next });
+      setMessage(`Reminder time updated to ${formatTime(next)}.`);
+    } catch (e) {
+      setMessage((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <div className="settings-card">
       <h2 className="serif">Your daily gratitude reminder</h2>
       <p>
-        A gentle reminder every evening at <strong>9 p.m.</strong>, whether or
-        not you’ve posted that day. No circle needed.
+        A gentle reminder every evening at <strong>{formatTime(time)}</strong>,
+        whether or not you’ve posted that day. No circle needed.
       </p>
+      <label htmlFor="reminder-time">Remind me at</label>
+      <input
+        id="reminder-time"
+        type="time"
+        value={time}
+        disabled={busy}
+        onChange={(event) => void changeTime(event.currentTarget.value)}
+      />
       {zone && (
         <p className="field-help">
           Time zone: {zone.replaceAll("_", " ")}. Daylight saving is handled
@@ -126,14 +167,16 @@ export function PushReminders({ demo }: { demo: boolean }) {
                 }));
               const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
               try {
-                await save({ subscription: sub.toJSON(), timezone });
+                await save({ subscription: sub.toJSON(), timezone, time });
               } catch (e) {
                 await sub.unsubscribe();
                 throw e;
               }
               setZone(timezone);
               setEnabled(true);
-              setMessage("Daily reminders enabled for 9 p.m. on this device.");
+              setMessage(
+                `Daily reminders enabled for ${formatTime(time)} on this device.`,
+              );
             }
           } catch (e) {
             setMessage((e as Error).message);
@@ -146,7 +189,7 @@ export function PushReminders({ demo }: { demo: boolean }) {
           ? "One moment…"
           : enabled
             ? "Turn off daily reminders"
-            : "Remind me at 9 p.m."}
+            : `Remind me at ${formatTime(time)}`}
       </button>
       {enabled && (
         <button
@@ -154,7 +197,7 @@ export function PushReminders({ demo }: { demo: boolean }) {
           onClick={async () => {
             try {
               await registration!.showNotification("Your daily gratitude", {
-                body: "This is how your 9 p.m. reminder will look. Take a moment to notice the good.",
+                body: `This is how your ${formatTime(time)} reminder will look. Take a moment to notice the good.`,
                 icon: "/icons/gratitude-192.png",
               });
               setMessage(
@@ -170,6 +213,52 @@ export function PushReminders({ demo }: { demo: boolean }) {
           Preview notification
         </button>
       )}
+      <p>
+        Prefer email? We can also send the {formatTime(time)} reminder to your
+        account email.
+      </p>
+      {!emailConfigured && ready && (
+        <p className="field-help">
+          Email reminders are awaiting server configuration.
+        </p>
+      )}
+      {!emailVerified && ready && emailConfigured && (
+        <p className="field-help">
+          Confirm your email address in Settings to receive email reminders.
+        </p>
+      )}
+      <button
+        className="button"
+        disabled={!ready || demo || !emailConfigured || !emailVerified || busy}
+        onClick={async () => {
+          setBusy(true);
+          setMessage("");
+          try {
+            await save({
+              action: emailEnabled ? "email-disable" : "email-enable",
+              timezone:
+                zone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+              time,
+            });
+            setEmailEnabled(!emailEnabled);
+            setMessage(
+              emailEnabled
+                ? "Daily email reminders turned off."
+                : `Daily email reminders enabled for ${formatTime(time)}.`,
+            );
+          } catch (e) {
+            setMessage((e as Error).message);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {busy
+          ? "One moment…"
+          : emailEnabled
+            ? "Turn off email reminders"
+            : `Email me at ${formatTime(time)}`}
+      </button>
       {message && (
         <p role="status" className="field-help">
           {message}

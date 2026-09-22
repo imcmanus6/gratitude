@@ -90,6 +90,7 @@ export async function deleteAccount(
       .run(user, user);
     await db.prepare("DELETE FROM image_generations WHERE user_id=?").run(user);
     await db.prepare("DELETE FROM uploads WHERE owner=?").run(user);
+    await db.prepare("DELETE FROM email_reminders WHERE user_id=?").run(user);
     await db.prepare("DELETE FROM users WHERE id=?").run(user);
     await db
       .prepare("DELETE FROM departure_feedback WHERE expires<?")
