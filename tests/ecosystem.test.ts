@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createHmac } from "node:crypto";
-import { verifyBrieflyHandoff } from "../lib/ecosystem.ts";
+import { verifyBrieflyHandoff } from "../lib/ecosystem";
 
 const SECRET = "shared-ecosystem-secret";
 const SUB = "33333333-3333-3333-3333-333333333333";
