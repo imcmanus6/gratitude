@@ -1629,6 +1629,7 @@ p {
 }
 .composer-help + .modal-actions {
   margin-top: 14px;
+}
 
 /* Arrived from another app (e.g. Ritual): offer the way back after saving. */
 .ecosystem-return {
