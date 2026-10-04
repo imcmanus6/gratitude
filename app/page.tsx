@@ -44,6 +44,7 @@ import { VibeIcon } from "@/components/vibe-icon";
 import { validCardTheme } from "@/lib/card-themes";
 import { GratitudeReplyIcon } from "@/components/gratitude-reply-icon";
 import { ShareGratitude } from "@/components/share-gratitude";
+import { ecosystemReturn } from "@/lib/ecosystem";
 import { SocialLogin } from "@/components/social-login";
 import { authMessages } from "@/lib/auth-messages";
 import { DeleteAccount } from "@/components/delete-account";
@@ -144,6 +145,7 @@ export default function App() {
     [selected, setSelected] = useState("all"),
     [modal, setModal] = useState<Modal>(null),
     [toast, setToast] = useState(""),
+    [returnTo, setReturnTo] = useState<{ name: string; url: string } | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [query, setQuery] = useState("");
@@ -200,6 +202,15 @@ export default function App() {
       url.searchParams.delete("auth_error");
       window.history.replaceState({}, "", url.pathname + url.search);
     }
+  }, [data?.user.id]);
+  // Arriving from Ritual (/open → /?compose=1): open "Add gratitude" straight away.
+  useEffect(() => {
+    if (!data?.user) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("compose") !== "1") return;
+    url.searchParams.delete("compose");
+    window.history.replaceState({}, "", url.pathname + url.search);
+    composer();
   }, [data?.user.id]);
   useEffect(() => {
     if (!toast) return;
@@ -466,6 +477,7 @@ export default function App() {
       if (result) {
         setBody("");
         localStorage.removeItem(`gratitude-draft-${data?.user.id}`);
+        setReturnTo(ecosystemReturn());
       }
     }
     if (modal === "circle") {
@@ -1823,6 +1835,13 @@ export default function App() {
       {toast && (
         <div className="toast" role="status">
           {toast}
+        </div>
+      )}
+      {returnTo && (
+        <div className="ecosystem-return" role="status">
+          <span>Saved. Your {returnTo.name} habit will tick off.</span>
+          <a href={returnTo.url}>Back to {returnTo.name}</a>
+          <button aria-label="Dismiss" onClick={() => setReturnTo(null)}>×</button>
         </div>
       )}
     </div>

@@ -4,12 +4,14 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { db, id, now, membership, visiblePost, state } from "@/lib/db";
 import { currentUser, fail, sameOrigin, text } from "@/lib/http";
+import { reportToVia65 } from "@/lib/via65Ingest";
 export async function POST(request: Request) {
   try {
     sameOrigin(request);
     const user = await currentUser();
     const d = await request.json();
     let result: unknown;
+    let postedId: string | null = null;
     await db.transaction(async () => {
       const requireCircle = async (circle: string, owner = false) => {
         const m = await membership(user.id, circle);
@@ -247,6 +249,7 @@ export async function POST(request: Request) {
                 "INSERT INTO post_circles(post_id,circle_id) VALUES(?,?)",
               )
               .run(postId, circleId);
+          postedId = postId;
           break;
         }
         case "react": {
@@ -454,6 +457,14 @@ export async function POST(request: Request) {
           throw new Error("Unknown action.");
       }
     })();
+    // After the entry is saved: let Ritual tick off its Gratitude habit (only for a verified email,
+    // and Ritual only sees it if the person allowed it there). Never blocks or fails the save.
+    if (postedId && !user.demo) {
+      const verified = await db
+        .prepare("SELECT 1 FROM users WHERE id=? AND (email_verified=1 OR EXISTS (SELECT 1 FROM oauth_identities WHERE user_id=?))")
+        .get(user.id, user.id);
+      if (verified) void reportToVia65(user.email, "gratitude.completed", `post:${postedId}`).catch(() => {});
+    }
     return NextResponse.json({ ...(await state(user)), result });
   } catch (e) {
     return fail(e);

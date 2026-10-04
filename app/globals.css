@@ -1629,4 +1629,41 @@ p {
 }
 .composer-help + .modal-actions {
   margin-top: 14px;
+
+/* Arrived from another app (e.g. Ritual): offer the way back after saving. */
+.ecosystem-return {
+  position: fixed;
+  left: 50%;
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(92vw, 460px);
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #1f2a24;
+  color: #fff;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
+  font-size: 14px;
+}
+.ecosystem-return span {
+  flex: 1;
+}
+.ecosystem-return a {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #f0cf8f;
+  color: #1b1b1b;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ecosystem-return button {
+  background: none;
+  border: 0;
+  color: #c9d1cc;
+  font-size: 20px;
+  cursor: pointer;
 }
